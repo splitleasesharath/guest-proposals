@@ -1,0 +1,12 @@
+# Cloudflare Pages redirects and rewrites
+# See: https://developers.cloudflare.com/pages/configuration/redirects/
+
+# Handle guest-proposals page with clean URL structure
+# Maps /guest-proposals/[user-id] to guest-proposals/index.html
+# The 200 status makes this a rewrite, not a redirect, keeping the URL intact
+/guest-proposals/*  /index.html  200
+
+# Legacy support for old URL structure (redirect to new clean URLs)
+/guest-proposals.html/:id  /guest-proposals/:id  301
+
+# Note: Cloudflare Pages automatically serves /404.html for not found routes
