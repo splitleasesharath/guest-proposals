@@ -74,6 +74,28 @@ export function transformHostData(rawHost) {
 }
 
 /**
+ * Transform guest data from Bubble.io format
+ *
+ * @param {Object} rawGuest - Raw guest object from Supabase
+ * @returns {Object} Transformed guest object
+ */
+export function transformGuestData(rawGuest) {
+  if (!rawGuest) return null;
+
+  return {
+    id: rawGuest._id,
+    firstName: rawGuest['Name - First'],
+    lastName: rawGuest['Name - Last'],
+    fullName: rawGuest['Name - Full'],
+    profilePhoto: rawGuest['Profile Photo'],
+    bio: rawGuest['About Me / Bio'],
+    linkedInVerified: rawGuest['Verify - Linked In ID'],
+    phoneVerified: rawGuest['Verify - Phone'],
+    userVerified: rawGuest['user verified?']
+  };
+}
+
+/**
  * Transform virtual meeting data from Bubble.io format
  *
  * @param {Object} rawVirtualMeeting - Raw virtual meeting object from Supabase
@@ -104,6 +126,7 @@ export function transformProposalData(rawProposal) {
   // Extract nested data
   const rawListing = rawProposal.listing;
   const rawHost = rawListing?.host;
+  const rawGuest = rawProposal.guest;
   const rawVirtualMeeting = rawProposal.virtual_meeting;
 
   return {
@@ -139,13 +162,15 @@ export function transformProposalData(rawProposal) {
     // Nested transformed data
     listing: transformListingData(rawListing),
     host: transformHostData(rawHost),
+    guest: transformGuestData(rawGuest),
     virtualMeeting: transformVirtualMeetingData(rawVirtualMeeting)
   };
 }
 
 /**
  * Get display text for proposal in dropdown
- * Format: "{host name} - {listing name}"
+ * Format: "{guest name} - {listing name}"
+ * Shows the guest who made the proposal, not the host
  *
  * @param {Object} proposal - Transformed proposal object
  * @returns {string} Display text for dropdown option
@@ -153,10 +178,10 @@ export function transformProposalData(rawProposal) {
 export function getProposalDisplayText(proposal) {
   if (!proposal) return null;
 
-  const hostName = proposal.host?.firstName;
-  const listingName = proposal.listing?.name;
+  const guestName = proposal.guest?.firstName || proposal.guest?.fullName || 'Guest';
+  const listingName = proposal.listing?.name || 'Property';
 
-  return `${hostName} - ${listingName}`;
+  return `${guestName} - ${listingName}`;
 }
 
 /**

@@ -2,7 +2,8 @@
  * ProposalSelector Component
  * Dropdown selector for switching between user's proposals
  *
- * Display format: "{host name} - {listing name}"
+ * Display format: "{guest name} - {listing name}"
+ * Shows the guest who made the proposal, not the host
  */
 
 import { getProposalDisplayText } from '../../lib/supabase/dataTransformers.js';
@@ -12,13 +13,6 @@ export default function ProposalSelector({
   selectedProposalId,
   onSelect
 }) {
-  // Generate dropdown option text: "Host - Listing Name"
-  function getOptionText(proposal) {
-    const hostName = proposal.host?.firstName;
-    const listingName = proposal.listing?.name;
-    return `${hostName} - ${listingName}`;
-  }
-
   return (
     <div className="proposal-selector">
       <div className="selector-header">
@@ -36,7 +30,7 @@ export default function ProposalSelector({
             key={proposal.id}
             value={proposal.id}
           >
-            {getOptionText(proposal)}
+            {getProposalDisplayText(proposal)}
           </option>
         ))}
       </select>

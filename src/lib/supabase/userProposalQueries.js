@@ -103,6 +103,7 @@ export async function fetchProposalsByIds(proposalIds) {
       _id,
       "Status",
       "Deleted",
+      "Guest",
       "Listing",
       "Days Selected",
       "Nights Selected (Nights list)",
@@ -220,20 +221,55 @@ export async function fetchProposalsByIds(proposalIds) {
     }
   }
 
+  // Step 5.5: Extract unique guest IDs from proposals and fetch guest user data
+  const guestIds = [...new Set(validProposals.map(p => p.Guest).filter(Boolean))];
+
+  console.log(`🎭 Fetching ${guestIds.length} unique guests`);
+
+  let guests = [];
+  if (guestIds.length > 0) {
+    const { data: guestsData, error: guestError } = await supabase
+      .from('user')
+      .select(`
+        _id,
+        "Name - First",
+        "Name - Last",
+        "Name - Full",
+        "Profile Photo",
+        "About Me / Bio",
+        "Verify - Linked In ID",
+        "Verify - Phone",
+        "user verified?"
+      `)
+      .in('_id', guestIds);
+
+    if (guestError) {
+      console.error('❌ Error fetching guests:', guestError);
+    } else {
+      guests = guestsData || [];
+      console.log(`✅ Fetched ${guests.length} guests`);
+    }
+  }
+
   // Step 6: Create lookup maps for efficient joining
   const listingMap = new Map((listings || []).map(l => [l._id, l]));
   // Key hosts by their Account - Host / Landlord field (not _id) for proper joining
   const hostMap = new Map(hosts.map(h => [h['Account - Host / Landlord'], h]));
+  // Key guests by their _id field
+  const guestMap = new Map(guests.map(g => [g._id, g]));
 
   // Step 7: Manually join the data
   const enrichedProposals = validProposals.map(proposal => {
     const listing = listingMap.get(proposal.Listing);
     // Lookup host by Host Account ID from listing
     const host = listing ? hostMap.get(listing['Host / Landlord']) : null;
+    // Lookup guest by proposal's Guest field
+    const guest = guestMap.get(proposal.Guest);
 
     return {
       ...proposal,
-      listing: listing ? { ...listing, host } : null
+      listing: listing ? { ...listing, host } : null,
+      guest: guest || null
     };
   });
 
