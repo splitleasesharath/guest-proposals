@@ -139,8 +139,18 @@ export async function fetchProposalsByIds(proposalIds) {
     throw new Error(`Failed to fetch proposals: ${proposalError.message}`);
   }
 
-  // Filter out only null proposals (include deleted proposals)
-  const validProposals = (proposals || []).filter(p => p !== null);
+  // Filter out deleted proposals and proposals cancelled by guest
+  const validProposals = (proposals || []).filter(p => {
+    if (!p) return false;
+
+    // Exclude deleted proposals (Deleted = true)
+    if (p.Deleted === true) return false;
+
+    // Exclude proposals cancelled by guest
+    if (p.Status === 'Proposal Cancelled by Guest') return false;
+
+    return true;
+  });
 
   if (validProposals.length === 0) {
     console.log('✅ No valid proposals found');
