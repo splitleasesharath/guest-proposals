@@ -1,34 +1,37 @@
 /**
  * User Proposal Query Functions
- * Implements Method 1: Fetch via user."Proposals List" (JSONB Array)
+ * Implements Direct Query Method: Query proposal table by Guest field
  *
  * Data flow:
  * 1. Extract user ID from URL
- * 2. Fetch user with "Proposals List" array
- * 3. Extract proposal IDs from array
- * 4. Fetch full proposal details with joins
+ * 2. Fetch user data
+ * 3. Query proposal table WHERE Guest = userId
+ * 4. Fetch related listings and hosts (nested fetches)
  * 5. Return user + proposals + selected proposal
+ *
+ * Note: This approach is more reliable than using user."Proposals List" field
+ * which is only populated for 35.8% of users (306/854).
  */
 
 import { supabase } from './supabase.js';
 import { getUserIdFromPath, getProposalIdFromQuery } from '../utils/urlParser.js';
 
 /**
- * STEP 1: Fetch user data with proposal ID list
+ * STEP 1: Fetch user data
  *
  * @param {string} userId - User ID from URL path
- * @returns {Promise<Object>} User object with Proposals List field
+ * @returns {Promise<Object>} User object
  */
-export async function fetchUserWithProposalList(userId) {
+export async function fetchUser(userId) {
   const { data, error } = await supabase
     .from('user')
     .select(`
       _id,
-      Name - First,
-      Name - Last,
-      Name - Full,
-      Profile Photo,
-      Proposals List
+      "Name - First",
+      "Name - Last",
+      "Name - Full",
+      "Profile Photo",
+      "email as text"
     `)
     .eq('_id', userId)
     .single();
@@ -47,131 +50,145 @@ export async function fetchUserWithProposalList(userId) {
 }
 
 /**
- * STEP 2: Extract proposal IDs from user.Proposals List
+ * STEP 2: Fetch user's proposals by querying proposal table directly
+ * This queries WHERE "Guest" = userId, which is more reliable than user."Proposals List"
  *
- * @param {Object} user - User object with Proposals List field
- * @returns {Array<string>} Array of proposal IDs
- */
-export function extractProposalIds(user) {
-  const proposalsList = user['Proposals List'];
-
-  if (!proposalsList) {
-    console.warn('⚠️ User has no Proposals List field');
-    return [];
-  }
-
-  // proposalsList is a JSONB array, parse if needed
-  let proposalIds = [];
-
-  if (typeof proposalsList === 'string') {
-    try {
-      proposalIds = JSON.parse(proposalsList);
-    } catch (e) {
-      console.error('❌ Failed to parse Proposals List:', e);
-      return [];
-    }
-  } else if (Array.isArray(proposalsList)) {
-    proposalIds = proposalsList;
-  } else {
-    console.error('❌ Proposals List is not an array or string:', typeof proposalsList);
-    return [];
-  }
-
-  console.log(`✅ Extracted ${proposalIds.length} proposal IDs:`, proposalIds);
-  return proposalIds;
-}
-
-/**
- * STEP 3: Fetch full proposal details for array of IDs
- * Includes joins for: listing, host (via listing), virtual_meeting
- *
- * @param {Array<string>} proposalIds - Array of proposal IDs to fetch
+ * @param {string} userId - User ID to fetch proposals for
  * @returns {Promise<Array<Object>>} Array of proposal objects with nested data
  */
-export async function fetchProposalsByIds(proposalIds) {
-  if (!proposalIds || proposalIds.length === 0) {
-    console.warn('⚠️ No proposal IDs to fetch');
-    return [];
-  }
-
-  const { data, error } = await supabase
+export async function fetchProposalsByGuestId(userId) {
+  // Step 1: Fetch all proposals for this guest
+  const { data: proposals, error: proposalError } = await supabase
     .from('proposal')
     .select(`
       _id,
-      Status,
-      Deleted,
-      Days Selected,
-      Nights Selected (Nights list),
-      Reservation Span (Weeks),
-      nights per week (num),
-      check in day,
-      check out day,
-      Move in range start,
-      Move in range end,
-      Total Price for Reservation (guest),
-      proposal nightly price,
-      cleaning fee,
-      damage deposit,
-      counter offer happened,
-      hc days selected,
-      hc reservation span (weeks),
-      hc total price,
-      hc nightly price,
-      Created Date,
-      Modified Date,
-      about_yourself,
-      special_needs,
-
-      listing:Listing (
-        _id,
-        Name,
-        Description,
-        Location - Address,
-        Location - Borough,
-        Location - Hood,
-        Features - Photos,
-        Features - House Rules,
-        NEW Date Check-in Time,
-        NEW Date Check-out Time,
-
-        host:Host / Landlord (
-          _id,
-          Name - First,
-          Name - Last,
-          Name - Full,
-          Profile Photo,
-          About Me / Bio,
-          Verify - Linked In ID,
-          Verify - Phone,
-          user verified?
-        )
-      ),
-
-      virtual_meeting:virtual meeting (
-        id,
-        booked_date,
-        confirmed_by_splitlease,
-        meeting_link,
-        meeting_declined
-      )
+      "Status",
+      "Deleted",
+      "Listing",
+      "Days Selected",
+      "Nights Selected (Nights list)",
+      "Reservation Span (Weeks)",
+      "nights per week (num)",
+      "check in day",
+      "check out day",
+      "Move in range start",
+      "Move in range end",
+      "Total Price for Reservation (guest)",
+      "proposal nightly price",
+      "cleaning fee",
+      "damage deposit",
+      "counter offer happened",
+      "hc days selected",
+      "hc reservation span (weeks)",
+      "hc total price",
+      "hc nightly price",
+      "Created Date",
+      "Modified Date",
+      "about_yourself",
+      "special_needs",
+      "reason for cancellation",
+      "rental application",
+      "virtual meeting",
+      "Is Finalized"
     `)
-    .in('_id', proposalIds)
-    .order('Created Date', { ascending: false });
+    .eq('Guest', userId)
+    .order('"Created Date"', { ascending: false });
 
-  if (error) {
-    console.error('❌ Error fetching proposals:', error);
-    throw new Error(`Failed to fetch proposals: ${error.message}`);
+  if (proposalError) {
+    console.error('❌ Error fetching proposals:', proposalError);
+    throw new Error(`Failed to fetch proposals: ${proposalError.message}`);
   }
 
-  // Filter out null results (orphaned proposal IDs)
-  const validProposals = (data || []).filter(p => p !== null);
+  const validProposals = (proposals || []).filter(p => p !== null && !p.Deleted);
 
-  if (validProposals.length < proposalIds.length) {
-    console.warn(`⚠️ Some proposal IDs are orphaned. Expected ${proposalIds.length}, got ${validProposals.length}`);
+  if (validProposals.length === 0) {
+    console.log('✅ No proposals found for user');
+    return [];
   }
 
-  console.log(`✅ Fetched ${validProposals.length} valid proposals`);
-  return validProposals;
+  console.log(`✅ Fetched ${validProposals.length} proposals for guest ${userId}`);
+
+  // Step 2: Extract unique listing IDs from proposals
+  const listingIds = [...new Set(validProposals.map(p => p.Listing).filter(Boolean))];
+
+  if (listingIds.length === 0) {
+    console.warn('⚠️ No listings found for proposals');
+    return validProposals.map(p => ({ ...p, listing: null }));
+  }
+
+  console.log(`📍 Fetching ${listingIds.length} unique listings`);
+
+  // Step 3: Fetch all listings
+  const { data: listings, error: listingError } = await supabase
+    .from('listing')
+    .select(`
+      _id,
+      "Name",
+      "Description",
+      "Location - Address",
+      "Location - Borough",
+      "Location - Hood",
+      "Features - Photos",
+      "Features - House Rules",
+      "NEW Date Check-in Time",
+      "NEW Date Check-out Time",
+      "Host / Landlord"
+    `)
+    .in('_id', listingIds);
+
+  if (listingError) {
+    console.error('❌ Error fetching listings:', listingError);
+    return validProposals.map(p => ({ ...p, listing: null }));
+  }
+
+  // Step 4: Extract unique host IDs from listings
+  const hostIds = [...new Set((listings || []).map(l => l['Host / Landlord']).filter(Boolean))];
+
+  console.log(`👤 Fetching ${hostIds.length} unique hosts`);
+
+  let hosts = [];
+  if (hostIds.length > 0) {
+    // Step 5: Fetch all hosts
+    const { data: hostsData, error: hostError } = await supabase
+      .from('user')
+      .select(`
+        _id,
+        "Name - First",
+        "Name - Last",
+        "Name - Full",
+        "Profile Photo",
+        "About Me / Bio",
+        "Verify - Linked In ID",
+        "Verify - Phone",
+        "user verified?"
+      `)
+      .in('_id', hostIds);
+
+    if (hostError) {
+      console.error('❌ Error fetching hosts:', hostError);
+    } else {
+      hosts = hostsData || [];
+      console.log(`✅ Fetched ${hosts.length} hosts`);
+    }
+  }
+
+  // Step 6: Create lookup maps for efficient joining
+  const listingMap = new Map((listings || []).map(l => [l._id, l]));
+  const hostMap = new Map(hosts.map(h => [h._id, h]));
+
+  // Step 7: Manually join the data
+  const enrichedProposals = validProposals.map(proposal => {
+    const listing = listingMap.get(proposal.Listing);
+    const host = listing ? hostMap.get(listing['Host / Landlord']) : null;
+
+    return {
+      ...proposal,
+      listing: listing ? { ...listing, host } : null
+    };
+  });
+
+  console.log(`✅ Successfully enriched ${enrichedProposals.length} proposals with listing and host data`);
+  return enrichedProposals;
 }
 
 /**
@@ -187,14 +204,14 @@ export async function fetchUserProposalsFromUrl() {
     throw new Error('No user ID found in URL path. Expected: /guest-proposals/{userId}');
   }
 
-  // Step 2: Fetch user data with proposal list
-  const user = await fetchUserWithProposalList(userId);
+  // Step 2: Fetch user data
+  const user = await fetchUser(userId);
 
-  // Step 3: Extract proposal IDs
-  const proposalIds = extractProposalIds(user);
+  // Step 3: Fetch proposals directly from proposal table (more reliable approach)
+  const proposals = await fetchProposalsByGuestId(userId);
 
   // Handle case where user has no proposals
-  if (proposalIds.length === 0) {
+  if (proposals.length === 0) {
     console.log('ℹ️ User has no proposals');
     return {
       user,
@@ -203,10 +220,7 @@ export async function fetchUserProposalsFromUrl() {
     };
   }
 
-  // Step 4: Fetch full proposal details
-  const proposals = await fetchProposalsByIds(proposalIds);
-
-  // Step 5: Check for preselected proposal
+  // Step 4: Check for preselected proposal
   const preselectedId = getProposalIdFromQuery();
   let selectedProposal = null;
 
