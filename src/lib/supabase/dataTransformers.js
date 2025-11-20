@@ -131,6 +131,10 @@ export function transformProposalData(rawProposal) {
     modifiedDate: rawProposal['Modified Date'] || null,
     aboutYourself: rawProposal.about_yourself || '',
     specialNeeds: rawProposal.special_needs || '',
+    reasonForCancellation: rawProposal['reason for cancellation'] || null,
+    proposalStage: rawProposal['Proposal Stage'] || null,
+    rentalApplicationId: rawProposal['rental application'] || null,
+    virtualMeetingId: rawProposal['virtual meeting'] || null,
 
     // Nested transformed data
     listing: transformListingData(rawListing),

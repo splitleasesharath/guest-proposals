@@ -141,14 +141,16 @@ export async function fetchProposalsByGuestId(userId) {
     return validProposals.map(p => ({ ...p, listing: null }));
   }
 
-  // Step 4: Extract unique host IDs from listings
-  const hostIds = [...new Set((listings || []).map(l => l['Host / Landlord']).filter(Boolean))];
+  // Step 4: Extract unique host account IDs from listings
+  // Note: listing['Host / Landlord'] contains Host Account IDs, not User IDs
+  const hostAccountIds = [...new Set((listings || []).map(l => l['Host / Landlord']).filter(Boolean))];
 
-  console.log(`👤 Fetching ${hostIds.length} unique hosts`);
+  console.log(`👤 Fetching ${hostAccountIds.length} unique hosts`);
 
   let hosts = [];
-  if (hostIds.length > 0) {
-    // Step 5: Fetch all hosts
+  if (hostAccountIds.length > 0) {
+    // Step 5: Fetch all hosts by their Host Account reference
+    // Important: Query by "Account - Host / Landlord" field, NOT by _id
     const { data: hostsData, error: hostError } = await supabase
       .from('user')
       .select(`
@@ -160,9 +162,10 @@ export async function fetchProposalsByGuestId(userId) {
         "About Me / Bio",
         "Verify - Linked In ID",
         "Verify - Phone",
-        "user verified?"
+        "user verified?",
+        "Account - Host / Landlord"
       `)
-      .in('_id', hostIds);
+      .in('"Account - Host / Landlord"', hostAccountIds);
 
     if (hostError) {
       console.error('❌ Error fetching hosts:', hostError);
@@ -174,11 +177,13 @@ export async function fetchProposalsByGuestId(userId) {
 
   // Step 6: Create lookup maps for efficient joining
   const listingMap = new Map((listings || []).map(l => [l._id, l]));
-  const hostMap = new Map(hosts.map(h => [h._id, h]));
+  // Key hosts by their Account - Host / Landlord field (not _id) for proper joining
+  const hostMap = new Map(hosts.map(h => [h['Account - Host / Landlord'], h]));
 
   // Step 7: Manually join the data
   const enrichedProposals = validProposals.map(proposal => {
     const listing = listingMap.get(proposal.Listing);
+    // Lookup host by Host Account ID from listing
     const host = listing ? hostMap.get(listing['Host / Landlord']) : null;
 
     return {
