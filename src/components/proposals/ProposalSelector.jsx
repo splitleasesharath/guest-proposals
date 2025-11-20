@@ -2,8 +2,8 @@
  * ProposalSelector Component
  * Dropdown selector for switching between user's proposals
  *
- * Display format: "{guest name} - {listing name}"
- * Shows the guest who made the proposal, not the host
+ * Display format: "{host name} - {listing name}"
+ * Shows the host who owns the listing, allowing guests to identify proposals by host
  */
 
 import { getProposalDisplayText } from '../../lib/supabase/dataTransformers.js';

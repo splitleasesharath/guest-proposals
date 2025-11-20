@@ -181,8 +181,8 @@ export function transformProposalData(rawProposal) {
 
 /**
  * Get display text for proposal in dropdown
- * Format: "{guest name} - {listing name}"
- * Shows the guest who made the proposal, not the host
+ * Format: "{host name} - {listing name}"
+ * Shows the host who owns the listing, allowing guests to identify proposals by host
  *
  * @param {Object} proposal - Transformed proposal object
  * @returns {string} Display text for dropdown option
@@ -190,10 +190,10 @@ export function transformProposalData(rawProposal) {
 export function getProposalDisplayText(proposal) {
   if (!proposal) return null;
 
-  const guestName = proposal.guest?.firstName || proposal.guest?.fullName || 'Guest';
+  const hostName = proposal.host?.firstName || proposal.host?.fullName || 'Host';
   const listingName = proposal.listing?.name || 'Property';
 
-  return `${guestName} - ${listingName}`;
+  return `${hostName} - ${listingName}`;
 }
 
 /**
