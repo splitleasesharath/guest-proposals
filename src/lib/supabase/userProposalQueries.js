@@ -187,6 +187,39 @@ export async function fetchProposalsByIds(proposalIds) {
     return validProposals.map(p => ({ ...p, listing: null }));
   }
 
+  // Step 3.5: Fetch borough and neighborhood names from lookup tables
+  const boroughIds = [...new Set((listings || []).map(l => l['Location - Borough']).filter(Boolean))];
+  const hoodIds = [...new Set((listings || []).map(l => l['Location - Hood']).filter(Boolean))];
+
+  console.log(`🌍 Fetching ${boroughIds.length} boroughs and ${hoodIds.length} neighborhoods`);
+
+  let boroughs = [];
+  let hoods = [];
+
+  if (boroughIds.length > 0) {
+    const { data: boroughsData, error: boroughError } = await supabase
+      .from('zat_geo_borough_toplevel')
+      .select('_id, "Display Borough"')
+      .in('_id', boroughIds);
+
+    if (!boroughError) {
+      boroughs = boroughsData || [];
+      console.log(`✅ Fetched ${boroughs.length} boroughs`);
+    }
+  }
+
+  if (hoodIds.length > 0) {
+    const { data: hoodsData, error: hoodError } = await supabase
+      .from('zat_geo_hood_mediumlevel')
+      .select('_id, "Display"')
+      .in('_id', hoodIds);
+
+    if (!hoodError) {
+      hoods = hoodsData || [];
+      console.log(`✅ Fetched ${hoods.length} neighborhoods`);
+    }
+  }
+
   // Step 4: Extract unique host account IDs from listings
   // Note: listing['Host / Landlord'] contains Host Account IDs, not User IDs
   const hostAccountIds = [...new Set((listings || []).map(l => l['Host / Landlord']).filter(Boolean))];
@@ -257,6 +290,9 @@ export async function fetchProposalsByIds(proposalIds) {
   const hostMap = new Map(hosts.map(h => [h['Account - Host / Landlord'], h]));
   // Key guests by their _id field
   const guestMap = new Map(guests.map(g => [g._id, g]));
+  // Key boroughs and hoods by their _id
+  const boroughMap = new Map(boroughs.map(b => [b._id, b['Display Borough']]));
+  const hoodMap = new Map(hoods.map(h => [h._id, h['Display']]));
 
   // Step 7: Manually join the data
   const enrichedProposals = validProposals.map(proposal => {
@@ -265,10 +301,18 @@ export async function fetchProposalsByIds(proposalIds) {
     const host = listing ? hostMap.get(listing['Host / Landlord']) : null;
     // Lookup guest by proposal's Guest field
     const guest = guestMap.get(proposal.Guest);
+    // Lookup borough and hood names
+    const boroughName = listing ? boroughMap.get(listing['Location - Borough']) : null;
+    const hoodName = listing ? hoodMap.get(listing['Location - Hood']) : null;
 
     return {
       ...proposal,
-      listing: listing ? { ...listing, host } : null,
+      listing: listing ? {
+        ...listing,
+        host,
+        boroughName,
+        hoodName
+      } : null,
       guest: guest || null
     };
   });

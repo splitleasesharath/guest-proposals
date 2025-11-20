@@ -23,7 +23,7 @@ function getStatusInfo(status) {
   return statusMap[status] || { color: 'gray', label: status };
 }
 
-// Helper to render weekly schedule
+// Helper to render weekly schedule with circular badges
 function WeeklySchedule({ nightsSelected }) {
   const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -33,7 +33,7 @@ function WeeklySchedule({ nightsSelected }) {
       {days.map((day, index) => {
         const isSelected = nightsSelected && nightsSelected.includes(dayNames[index]);
         return (
-          <div key={index} className={`day-cell ${isSelected ? 'selected' : ''}`}>
+          <div key={index} className={`day-badge ${isSelected ? 'selected' : 'unselected'}`}>
             {day}
           </div>
         );
@@ -93,141 +93,90 @@ export default function ProposalCard({ proposal }) {
         </div>
       )}
 
-      <div className="proposal-header">
-        <h3>{listing?.name}</h3>
-        {/* Location Information */}
-        {listing?.address?.address && (
-          <p className="listing-location">
-            {listing.hood || listing.borough}
-          </p>
-        )}
-        <span className={`status-badge status-${statusInfo.color}`}>
-          {statusInfo.label}
-        </span>
-      </div>
+      {/* Main Content: Two Column Layout */}
+      <div className="proposal-content">
+        {/* Left Column: Listing Details */}
+        <div className="proposal-left">
+          {/* Listing Header */}
+          <div className="listing-header">
+            <h2 className="listing-title">{listing?.name}</h2>
+            <p className="listing-subtitle">
+              {listing?.hoodName && listing?.boroughName
+                ? `${listing.hoodName}, ${listing.boroughName}`
+                : listing?.hoodName || listing?.boroughName || 'Location'}
+            </p>
+            <div className="listing-actions">
+              <button className="btn-view-listing">View Listing</button>
+              <button className="btn-view-map">View Map</button>
+            </div>
+          </div>
 
-      <div className="proposal-section">
-        <h4>Host Information</h4>
-        <div className="host-info">
-          {host?.profilePhoto && (
-            <img src={host.profilePhoto} alt={host.fullName} className="host-photo" />
-          )}
-          <div>
-            <p className="host-name">{host?.fullName}</p>
-            <div className="host-verification">
-              {host?.linkedInVerified && <span className="verify-badge">LinkedIn Verified</span>}
-              {host?.phoneVerified && <span className="verify-badge">Phone Verified</span>}
+          {/* Schedule Section */}
+          <div className="schedule-section">
+            <p className="schedule-days"><strong>{proposal.checkInDay}</strong> thru <strong>{proposal.checkOutDay}</strong></p>
+            <p className="duration-text">Duration <strong>{proposal.reservationWeeks} Weeks</strong></p>
+            <WeeklySchedule nightsSelected={proposal.nightsSelected} />
+            <div className="schedule-times">
+              <p>Check-in {listing?.checkInTime} Check-out {listing?.checkOutTime}</p>
+              {proposal.moveInStart && (
+                <p><strong>Anticipated Move-in</strong> {formatDate(proposal.moveInStart)}</p>
+              )}
+            </div>
+            {listing?.houseRules && (
+              <button className="link-button">See House Rules</button>
+            )}
+          </div>
+
+          {/* Pricing Section */}
+          <div className="pricing-section">
+            <div className="pricing-grid">
+              <div className="pricing-details-left">
+                {proposal.totalPrice && (
+                  <p className="total-price">Total {formatPrice(proposal.totalPrice)}</p>
+                )}
+                <p className="fee-note">No maintenance fee</p>
+                {proposal.damageDeposit && (
+                  <p className="deposit">Damage deposit {formatPrice(proposal.damageDeposit)}</p>
+                )}
+              </div>
+              <div className="pricing-details-right">
+                {proposal.nightlyPrice && (
+                  <p className="nightly-rate">
+                    <span className="rate-amount">{formatPrice(proposal.nightlyPrice)}</span>
+                    <span className="rate-label">/ night</span>
+                  </p>
+                )}
+              </div>
+            </div>
+            <button className="btn-delete-proposal">Delete Proposal</button>
+          </div>
+        </div>
+
+        {/* Right Column: Host Profile Card */}
+        <div className="proposal-right">
+          <div className="host-profile-card">
+            {/* Background: Listing Photo */}
+            <div className="host-card-background">
+              {listing?.photos && listing.photos[0] && (
+                <img src={`https://via.placeholder.com/400x300?text=Property`} alt="Property" className="property-photo" />
+              )}
+            </div>
+            {/* Overlay: Host Info */}
+            <div className="host-card-overlay">
+              {host?.profilePhoto && (
+                <img src={host.profilePhoto} alt={host.fullName} className="host-avatar" />
+              )}
+              <p className="host-name-label">{host?.firstName || host?.fullName}</p>
+              <button className="btn-host-profile">Host Profile</button>
+              <button className="btn-send-message">Send a Message</button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="proposal-section">
-        <h4>Listing Details</h4>
-        {listing?.address?.address && (
-          <p className="listing-address">{listing.address.address}</p>
-        )}
-        {(listing?.borough || listing?.hood) && (
-          <p className="listing-area">
-            {listing.hood && `${listing.hood}, `}
-            {listing.borough}
-          </p>
-        )}
-        <div className="listing-actions">
-          <button className="action-button secondary">View Listing</button>
-          <button className="action-button secondary">View Map</button>
-          <button className="action-button secondary">Host Profile</button>
-          <button className="action-button secondary">Send a Message</button>
-        </div>
-      </div>
-
-      <div className="proposal-section">
-        <h4>Schedule</h4>
-        <div className="schedule-info">
-          <p><strong>{proposal.checkInDay}</strong> thru <strong>{proposal.checkOutDay}</strong></p>
-          <p className="duration-text">{proposal.reservationWeeks} Weeks</p>
-        </div>
-        <WeeklySchedule nightsSelected={proposal.nightsSelected} />
-        {(listing?.checkInTime || listing?.checkOutTime) && (
-          <div className="times-grid">
-            {listing?.checkInTime && (
-              <div>
-                <span className="time-label">Check-in:</span>
-                <span className="time-value">{listing.checkInTime}</span>
-              </div>
-            )}
-            {listing?.checkOutTime && (
-              <div>
-                <span className="time-label">Check-out:</span>
-                <span className="time-value">{listing.checkOutTime}</span>
-              </div>
-            )}
-          </div>
-        )}
-        {proposal.moveInStart && (
-          <p className="move-in-date">
-            <strong>Anticipated Move-in:</strong> {formatDate(proposal.moveInStart)}
-          </p>
-        )}
-      </div>
-
-      <div className="proposal-section">
-        <h4>Pricing</h4>
-        <div className="pricing-details">
-          {proposal.totalPrice && (
-            <div className="price-row">
-              <span>Total Price:</span>
-              <span className="price-large">{formatPrice(proposal.totalPrice)}</span>
-            </div>
-          )}
-          {proposal.nightlyPrice && (
-            <div className="price-row">
-              <span>Nightly Rate:</span>
-              <span>{formatPrice(proposal.nightlyPrice)}</span>
-            </div>
-          )}
-          {proposal.damageDeposit && (
-            <div className="price-row">
-              <span>Damage Deposit:</span>
-              <span>{formatPrice(proposal.damageDeposit)}</span>
-            </div>
-          )}
-          {proposal.cleaningFee && (
-            <div className="price-row">
-              <span>Cleaning Fee:</span>
-              <span>{formatPrice(proposal.cleaningFee)}</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {listing?.houseRules && (
-        <div className="proposal-section">
-          <h4>House Rules</h4>
-          <button className="action-button text-button">See House Rules</button>
-        </div>
-      )}
-
-      {/* Progress Tracker */}
-      {proposal.proposalStage && (
-        <div className="proposal-section">
-          <h4>Progress</h4>
-          <ProgressTracker currentStage={proposal.proposalStage} />
-        </div>
-      )}
-
-      {/* Action Buttons */}
-      <div className="proposal-actions">
-        {!proposal.status.includes('Cancelled') && !proposal.status.includes('Rejected') && (
-          <>
-            <button className="action-button primary">See Details</button>
-            {proposal.virtualMeetingId && (
-              <button className="action-button secondary">Virtual Meetings</button>
-            )}
-            <button className="action-button secondary">Remind Split Lease</button>
-            <button className="action-button danger">Cancel Proposal</button>
-          </>
-        )}
+      {/* Progress Tracker - Always show below the main content */}
+      <div className="progress-tracker-container">
+        <ProgressTracker currentStage={proposal.proposalStage} />
       </div>
     </div>
   );

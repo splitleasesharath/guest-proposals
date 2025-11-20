@@ -1,0 +1,430 @@
+/**
+ * Proposal Card Redesign - Matching Original Bubble.io Design
+ * Two-column layout with left content + right host profile card
+ */
+
+/* Main Proposal Card Container */
+.proposal-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Status Banner (Green for completed, Red for cancelled, etc.) */
+.status-banner {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+.status-banner.status-green {
+    background-color: #D1FAE5;
+    color: #065F46;
+    border: 1px solid #6EE7B7;
+}
+
+.status-banner.status-red {
+    background-color: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FCA5A5;
+}
+
+.status-banner.status-yellow {
+    background-color: #FEF3C7;
+    color: #92400E;
+    border: 1px solid: #FCD34D;
+}
+
+.status-banner.status-blue {
+    background-color: #DBEAFE;
+    color: #1E40AF;
+    border: 1px solid #93C5FD;
+}
+
+/* Two-Column Layout */
+.proposal-content {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Left Column Styles */
+.proposal-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Listing Header */
+.listing-header {
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 1rem;
+}
+
+.listing-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #4F46E5;
+    margin-bottom: 0.5rem;
+}
+
+.listing-subtitle {
+    font-size: 0.95rem;
+    color: #6B7280;
+    margin-bottom: 1rem;
+}
+
+.listing-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-view-listing,
+.btn-view-map {
+    padding: 0.5rem 1rem;
+    border: 1px solid #7C3AED;
+    background: white;
+    color: #7C3AED;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-view-listing:hover,
+.btn-view-map:hover {
+    background: #7C3AED;
+    color: white;
+}
+
+/* Schedule Section */
+.schedule-section {
+    background: #F9FAFB;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.schedule-days {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+
+.duration-text {
+    font-size: 0.9rem;
+    color: #6B7280;
+    margin-bottom: 1rem;
+}
+
+/* Weekly Schedule with Circular Badges */
+.weekly-schedule {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.day-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.day-badge.selected {
+    background: #7C3AED;
+    color: white;
+}
+
+.day-badge.unselected {
+    background: #E5E7EB;
+    color: #9CA3AF;
+}
+
+.schedule-times {
+    font-size: 0.9rem;
+    color: #374151;
+    margin-top: 1rem;
+}
+
+.schedule-times p {
+    margin: 0.25rem 0;
+}
+
+.link-button {
+    background: none;
+    border: none;
+    color: #7C3AED;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+    padding: 0;
+}
+
+/* Pricing Section */
+.pricing-section {
+    background: #F3F4F6;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.pricing-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.pricing-details-left {
+    flex: 1;
+}
+
+.total-price {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0.25rem 0;
+}
+
+.fee-note {
+    font-size: 0.85rem;
+    color: #6B7280;
+    margin: 0.25rem 0;
+}
+
+.deposit {
+    font-size: 0.9rem;
+    color: #374151;
+    margin: 0.25rem 0;
+}
+
+.pricing-details-right {
+    text-align: right;
+}
+
+.nightly-rate {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.rate-amount {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1;
+}
+
+.rate-label {
+    font-size: 0.9rem;
+    color: #6B7280;
+}
+
+.btn-delete-proposal {
+    width: 100%;
+    padding: 0.75rem;
+    background: #EF4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-delete-proposal:hover {
+    background: #DC2626;
+}
+
+/* Right Column - Host Profile Card */
+.proposal-right {
+    position: relative;
+}
+
+.host-profile-card {
+    position: sticky;
+    top: 2rem;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.host-card-background {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+}
+
+.property-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.host-card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.host-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid white;
+    object-fit: cover;
+}
+
+.host-name-label {
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.btn-host-profile,
+.btn-send-message {
+    width: 100%;
+    max-width: 200px;
+    padding: 0.65rem 1.25rem;
+    background: #7C3AED;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-host-profile:hover,
+.btn-send-message:hover {
+    background: #6D28D9;
+}
+
+/* Progress Tracker */
+.progress-tracker-container {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #E5E7EB;
+}
+
+.progress-tracker {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    padding: 2rem 0;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.progress-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #E5E7EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #9CA3AF;
+    margin-bottom: 0.75rem;
+    z-index: 2;
+    position: relative;
+}
+
+.progress-circle.completed {
+    background: #EF4444;
+    border-color: #EF4444;
+    color: white;
+}
+
+.progress-circle.current {
+    background: #EF4444;
+    border-color: #EF4444;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.progress-label {
+    font-size: 0.8rem;
+    color: #6B7280;
+    text-align: center;
+    max-width: 100px;
+}
+
+/* Progress connecting line */
+.progress-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 100%;
+    height: 3px;
+    background: #E5E7EB;
+    z-index: 1;
+}
+
+.progress-step.completed:not(:last-child)::after {
+    background: #EF4444;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .proposal-content {
+        grid-template-columns: 1fr;
+    }
+
+    .proposal-right {
+        order: -1;
+    }
+
+    .host-profile-card {
+        position: relative;
+        top: 0;
+    }
+
+    .progress-tracker {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .progress-step {
+        min-width: 80px;
+    }
+}

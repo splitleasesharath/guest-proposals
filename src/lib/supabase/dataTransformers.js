@@ -37,13 +37,25 @@ export function transformUserData(rawUser) {
 export function transformListingData(rawListing) {
   if (!rawListing) return null;
 
+  // Extract address from JSONB structure
+  const addressData = rawListing['Location - Address'];
+  const addressString = typeof addressData === 'object' && addressData?.address
+    ? addressData.address
+    : (typeof addressData === 'string' ? addressData : null);
+
   return {
     id: rawListing._id,
     name: rawListing.Name,
     description: rawListing.Description,
-    address: rawListing['Location - Address'],
+    address: addressString,
+    addressData: addressData, // Keep full JSONB for map coordinates
     borough: rawListing['Location - Borough'],
     hood: rawListing['Location - Hood'],
+    boroughName: rawListing.boroughName, // Resolved name from lookup table
+    hoodName: rawListing.hoodName, // Resolved name from lookup table
+    city: rawListing['Location - City'],
+    state: rawListing['Location - State'],
+    zipCode: rawListing['Location - Zip Code'],
     photos: rawListing['Features - Photos'],
     houseRules: rawListing['Features - House Rules'],
     checkInTime: rawListing['NEW Date Check-in Time'],
