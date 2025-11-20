@@ -20,11 +20,11 @@ export function transformUserData(rawUser) {
 
   return {
     id: rawUser._id,
-    firstName: rawUser['Name - First'] || '',
-    lastName: rawUser['Name - Last'] || '',
-    fullName: rawUser['Name - Full'] || '',
-    profilePhoto: rawUser['Profile Photo'] || null,
-    proposalsList: rawUser['Proposals List'] || []
+    firstName: rawUser['Name - First'],
+    lastName: rawUser['Name - Last'],
+    fullName: rawUser['Name - Full'],
+    profilePhoto: rawUser['Profile Photo'],
+    proposalsList: rawUser['Proposals List']
   };
 }
 
@@ -39,15 +39,15 @@ export function transformListingData(rawListing) {
 
   return {
     id: rawListing._id,
-    name: rawListing.Name || 'Unknown Listing',
-    description: rawListing.Description || '',
-    address: rawListing['Location - Address'] || {},
-    borough: rawListing['Location - Borough'] || '',
-    hood: rawListing['Location - Hood'] || '',
-    photos: rawListing['Features - Photos'] || [],
-    houseRules: rawListing['Features - House Rules'] || '',
-    checkInTime: rawListing['NEW Date Check-in Time'] || '',
-    checkOutTime: rawListing['NEW Date Check-out Time'] || ''
+    name: rawListing.Name,
+    description: rawListing.Description,
+    address: rawListing['Location - Address'],
+    borough: rawListing['Location - Borough'],
+    hood: rawListing['Location - Hood'],
+    photos: rawListing['Features - Photos'],
+    houseRules: rawListing['Features - House Rules'],
+    checkInTime: rawListing['NEW Date Check-in Time'],
+    checkOutTime: rawListing['NEW Date Check-out Time']
   };
 }
 
@@ -62,14 +62,14 @@ export function transformHostData(rawHost) {
 
   return {
     id: rawHost._id,
-    firstName: rawHost['Name - First'] || 'Unknown',
-    lastName: rawHost['Name - Last'] || '',
-    fullName: rawHost['Name - Full'] || 'Unknown Host',
-    profilePhoto: rawHost['Profile Photo'] || null,
-    bio: rawHost['About Me / Bio'] || '',
-    linkedInVerified: rawHost['Verify - Linked In ID'] || false,
-    phoneVerified: rawHost['Verify - Phone'] || false,
-    userVerified: rawHost['user verified?'] || false
+    firstName: rawHost['Name - First'],
+    lastName: rawHost['Name - Last'],
+    fullName: rawHost['Name - Full'],
+    profilePhoto: rawHost['Profile Photo'],
+    bio: rawHost['About Me / Bio'],
+    linkedInVerified: rawHost['Verify - Linked In ID'],
+    phoneVerified: rawHost['Verify - Phone'],
+    userVerified: rawHost['user verified?']
   };
 }
 
@@ -84,10 +84,10 @@ export function transformVirtualMeetingData(rawVirtualMeeting) {
 
   return {
     id: rawVirtualMeeting.id,
-    bookedDate: rawVirtualMeeting.booked_date || null,
-    confirmedBySplitlease: rawVirtualMeeting.confirmed_by_splitlease || false,
-    meetingLink: rawVirtualMeeting.meeting_link || null,
-    meetingDeclined: rawVirtualMeeting.meeting_declined || false
+    bookedDate: rawVirtualMeeting.booked_date,
+    confirmedBySplitlease: rawVirtualMeeting.confirmed_by_splitlease,
+    meetingLink: rawVirtualMeeting.meeting_link,
+    meetingDeclined: rawVirtualMeeting.meeting_declined
   };
 }
 
@@ -108,33 +108,33 @@ export function transformProposalData(rawProposal) {
 
   return {
     id: rawProposal._id,
-    status: rawProposal.Status || 'unknown',
-    deleted: rawProposal.Deleted || false,
-    daysSelected: rawProposal['Days Selected'] || [],
-    nightsSelected: rawProposal['Nights Selected (Nights list)'] || [],
-    reservationWeeks: rawProposal['Reservation Span (Weeks)'] || 0,
-    nightsPerWeek: rawProposal['nights per week (num)'] || 0,
-    checkInDay: rawProposal['check in day'] || '',
-    checkOutDay: rawProposal['check out day'] || '',
-    moveInStart: rawProposal['Move in range start'] || '',
-    moveInEnd: rawProposal['Move in range end'] || '',
-    totalPrice: rawProposal['Total Price for Reservation (guest)'] || 0,
-    nightlyPrice: rawProposal['proposal nightly price'] || 0,
-    cleaningFee: rawProposal['cleaning fee'] || 0,
-    damageDeposit: rawProposal['damage deposit'] || 0,
-    counterOfferHappened: rawProposal['counter offer happened'] || false,
-    hcDaysSelected: rawProposal['hc days selected'] || [],
-    hcReservationWeeks: rawProposal['hc reservation span (weeks)'] || 0,
-    hcTotalPrice: rawProposal['hc total price'] || 0,
-    hcNightlyPrice: rawProposal['hc nightly price'] || 0,
-    createdDate: rawProposal['Created Date'] || null,
-    modifiedDate: rawProposal['Modified Date'] || null,
-    aboutYourself: rawProposal.about_yourself || '',
-    specialNeeds: rawProposal.special_needs || '',
-    reasonForCancellation: rawProposal['reason for cancellation'] || null,
-    proposalStage: rawProposal['Proposal Stage'] || null,
-    rentalApplicationId: rawProposal['rental application'] || null,
-    virtualMeetingId: rawProposal['virtual meeting'] || null,
+    status: rawProposal.Status,
+    deleted: rawProposal.Deleted,
+    daysSelected: rawProposal['Days Selected'],
+    nightsSelected: rawProposal['Nights Selected (Nights list)'],
+    reservationWeeks: rawProposal['Reservation Span (Weeks)'],
+    nightsPerWeek: rawProposal['nights per week (num)'],
+    checkInDay: rawProposal['check in day'],
+    checkOutDay: rawProposal['check out day'],
+    moveInStart: rawProposal['Move in range start'],
+    moveInEnd: rawProposal['Move in range end'],
+    totalPrice: rawProposal['Total Price for Reservation (guest)'],
+    nightlyPrice: rawProposal['proposal nightly price'],
+    cleaningFee: rawProposal['cleaning fee'],
+    damageDeposit: rawProposal['damage deposit'],
+    counterOfferHappened: rawProposal['counter offer happened'],
+    hcDaysSelected: rawProposal['hc days selected'],
+    hcReservationWeeks: rawProposal['hc reservation span (weeks)'],
+    hcTotalPrice: rawProposal['hc total price'],
+    hcNightlyPrice: rawProposal['hc nightly price'],
+    createdDate: rawProposal['Created Date'],
+    modifiedDate: rawProposal['Modified Date'],
+    aboutYourself: rawProposal.about_yourself,
+    specialNeeds: rawProposal.special_needs,
+    reasonForCancellation: rawProposal['reason for cancellation'],
+    proposalStage: rawProposal['Proposal Stage'],
+    rentalApplicationId: rawProposal['rental application'],
+    virtualMeetingId: rawProposal['virtual meeting'],
 
     // Nested transformed data
     listing: transformListingData(rawListing),
@@ -151,10 +151,10 @@ export function transformProposalData(rawProposal) {
  * @returns {string} Display text for dropdown option
  */
 export function getProposalDisplayText(proposal) {
-  if (!proposal) return 'Unknown Proposal';
+  if (!proposal) return null;
 
-  const hostName = proposal.host?.firstName || 'Unknown Host';
-  const listingName = proposal.listing?.name || 'Unknown Listing';
+  const hostName = proposal.host?.firstName;
+  const listingName = proposal.listing?.name;
 
   return `${hostName} - ${listingName}`;
 }
@@ -167,7 +167,7 @@ export function getProposalDisplayText(proposal) {
  * @returns {string} Formatted price string
  */
 export function formatPrice(price, includeCents = true) {
-  if (price === null || price === undefined) return '$0';
+  if (price === null || price === undefined) return null;
 
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -186,11 +186,11 @@ export function formatPrice(price, includeCents = true) {
  * @returns {string} Formatted date string
  */
 export function formatDate(date) {
-  if (!date) return '';
+  if (!date) return null;
 
   const dateObj = typeof date === 'string' ? new Date(date) : date;
 
-  if (isNaN(dateObj.getTime())) return '';
+  if (isNaN(dateObj.getTime())) return null;
 
   return dateObj.toLocaleDateString('en-US', {
     year: 'numeric',

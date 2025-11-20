@@ -14,8 +14,8 @@ export default function ProposalSelector({
 }) {
   // Generate dropdown option text: "Host - Listing Name"
   function getOptionText(proposal) {
-    const hostName = proposal.host?.firstName || 'Unknown Host';
-    const listingName = proposal.listing?.name || 'Unknown Listing';
+    const hostName = proposal.host?.firstName;
+    const listingName = proposal.listing?.name;
     return `${hostName} - ${listingName}`;
   }
 

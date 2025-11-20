@@ -94,11 +94,11 @@ export default function ProposalCard({ proposal }) {
       )}
 
       <div className="proposal-header">
-        <h3>{listing?.name || 'Unknown Listing'}</h3>
+        <h3>{listing?.name}</h3>
         {/* Location Information */}
         {listing?.address?.address && (
           <p className="listing-location">
-            {listing.hood || listing.borough || listing.address.address.split(',')[0]}
+            {listing.hood || listing.borough}
           </p>
         )}
         <span className={`status-badge status-${statusInfo.color}`}>
@@ -113,7 +113,7 @@ export default function ProposalCard({ proposal }) {
             <img src={host.profilePhoto} alt={host.fullName} className="host-photo" />
           )}
           <div>
-            <p className="host-name">{host?.fullName || 'Unknown Host'}</p>
+            <p className="host-name">{host?.fullName}</p>
             <div className="host-verification">
               {host?.linkedInVerified && <span className="verify-badge">LinkedIn Verified</span>}
               {host?.phoneVerified && <span className="verify-badge">Phone Verified</span>}
@@ -130,7 +130,7 @@ export default function ProposalCard({ proposal }) {
         {(listing?.borough || listing?.hood) && (
           <p className="listing-area">
             {listing.hood && `${listing.hood}, `}
-            {listing.borough || ''}
+            {listing.borough}
           </p>
         )}
         <div className="listing-actions">
@@ -148,16 +148,22 @@ export default function ProposalCard({ proposal }) {
           <p className="duration-text">{proposal.reservationWeeks} Weeks</p>
         </div>
         <WeeklySchedule nightsSelected={proposal.nightsSelected} />
-        <div className="times-grid">
-          <div>
-            <span className="time-label">Check-in:</span>
-            <span className="time-value">{listing?.checkInTime || '2:00 pm'}</span>
+        {(listing?.checkInTime || listing?.checkOutTime) && (
+          <div className="times-grid">
+            {listing?.checkInTime && (
+              <div>
+                <span className="time-label">Check-in:</span>
+                <span className="time-value">{listing.checkInTime}</span>
+              </div>
+            )}
+            {listing?.checkOutTime && (
+              <div>
+                <span className="time-label">Check-out:</span>
+                <span className="time-value">{listing.checkOutTime}</span>
+              </div>
+            )}
           </div>
-          <div>
-            <span className="time-label">Check-out:</span>
-            <span className="time-value">{listing?.checkOutTime || '11:00 am'}</span>
-          </div>
-        </div>
+        )}
         {proposal.moveInStart && (
           <p className="move-in-date">
             <strong>Anticipated Move-in:</strong> {formatDate(proposal.moveInStart)}
@@ -168,31 +174,29 @@ export default function ProposalCard({ proposal }) {
       <div className="proposal-section">
         <h4>Pricing</h4>
         <div className="pricing-details">
-          {proposal.totalPrice > 0 ? (
-            <>
-              <div className="price-row">
-                <span>Total Price:</span>
-                <span className="price-large">{formatPrice(proposal.totalPrice)}</span>
-              </div>
-              <div className="price-row">
-                <span>Nightly Rate:</span>
-                <span>{formatPrice(proposal.nightlyPrice)}</span>
-              </div>
-              {proposal.damageDeposit > 0 && (
-                <div className="price-row">
-                  <span>Damage Deposit:</span>
-                  <span>{formatPrice(proposal.damageDeposit)}</span>
-                </div>
-              )}
-              {proposal.cleaningFee > 0 && (
-                <div className="price-row">
-                  <span>Cleaning Fee:</span>
-                  <span>{formatPrice(proposal.cleaningFee)}</span>
-                </div>
-              )}
-            </>
-          ) : (
-            <p className="price-unavailable">Price unavailable. Contact Split Lease</p>
+          {proposal.totalPrice && (
+            <div className="price-row">
+              <span>Total Price:</span>
+              <span className="price-large">{formatPrice(proposal.totalPrice)}</span>
+            </div>
+          )}
+          {proposal.nightlyPrice && (
+            <div className="price-row">
+              <span>Nightly Rate:</span>
+              <span>{formatPrice(proposal.nightlyPrice)}</span>
+            </div>
+          )}
+          {proposal.damageDeposit && (
+            <div className="price-row">
+              <span>Damage Deposit:</span>
+              <span>{formatPrice(proposal.damageDeposit)}</span>
+            </div>
+          )}
+          {proposal.cleaningFee && (
+            <div className="price-row">
+              <span>Cleaning Fee:</span>
+              <span>{formatPrice(proposal.cleaningFee)}</span>
+            </div>
           )}
         </div>
       </div>

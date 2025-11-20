@@ -1,28 +1,26 @@
 /**
  * User Proposal Query Functions
- * Implements Direct Query Method: Query proposal table by Guest field
+ * Implements user."Proposals List" approach per user requirement
  *
  * Data flow:
  * 1. Extract user ID from URL
- * 2. Fetch user data
- * 3. Query proposal table WHERE Guest = userId
- * 4. Fetch related listings and hosts (nested fetches)
- * 5. Return user + proposals + selected proposal
- *
- * Note: This approach is more reliable than using user."Proposals List" field
- * which is only populated for 35.8% of users (306/854).
+ * 2. Fetch user data with "Proposals List" array
+ * 3. Extract proposal IDs from the array
+ * 4. Fetch proposals by those specific IDs
+ * 5. Fetch related listings and hosts (nested fetches)
+ * 6. Return user + proposals + selected proposal
  */
 
 import { supabase } from './supabase.js';
 import { getUserIdFromPath, getProposalIdFromQuery } from '../utils/urlParser.js';
 
 /**
- * STEP 1: Fetch user data
+ * STEP 1: Fetch user data with Proposals List
  *
  * @param {string} userId - User ID from URL path
- * @returns {Promise<Object>} User object
+ * @returns {Promise<Object>} User object with Proposals List
  */
-export async function fetchUser(userId) {
+export async function fetchUserWithProposalList(userId) {
   const { data, error } = await supabase
     .from('user')
     .select(`
@@ -31,7 +29,8 @@ export async function fetchUser(userId) {
       "Name - Last",
       "Name - Full",
       "Profile Photo",
-      "email as text"
+      "email as text",
+      "Proposals List"
     `)
     .eq('_id', userId)
     .single();
@@ -50,14 +49,54 @@ export async function fetchUser(userId) {
 }
 
 /**
- * STEP 2: Fetch user's proposals by querying proposal table directly
- * This queries WHERE "Guest" = userId, which is more reliable than user."Proposals List"
+ * STEP 2: Extract proposal IDs from user's Proposals List
  *
- * @param {string} userId - User ID to fetch proposals for
+ * @param {Object} user - User object with Proposals List
+ * @returns {Array<string>} Array of proposal IDs
+ */
+export function extractProposalIds(user) {
+  const proposalsList = user['Proposals List'];
+
+  if (!proposalsList) {
+    console.warn('⚠️ User has no Proposals List field');
+    return [];
+  }
+
+  // Handle JSONB array parsing
+  let proposalIds = [];
+
+  if (Array.isArray(proposalsList)) {
+    proposalIds = proposalsList;
+  } else if (typeof proposalsList === 'string') {
+    try {
+      proposalIds = JSON.parse(proposalsList);
+    } catch (e) {
+      console.error('❌ Failed to parse Proposals List:', e);
+      return [];
+    }
+  } else {
+    console.error('❌ Proposals List is not an array or string:', typeof proposalsList);
+    return [];
+  }
+
+  console.log(`✅ Extracted ${proposalIds.length} proposal IDs from user's Proposals List`);
+  return proposalIds;
+}
+
+/**
+ * STEP 3: Fetch proposals by their IDs from user's Proposals List
+ * Note: Some proposal IDs may be orphaned (don't exist in proposal table)
+ *
+ * @param {Array<string>} proposalIds - Array of proposal IDs from user's list
  * @returns {Promise<Array<Object>>} Array of proposal objects with nested data
  */
-export async function fetchProposalsByGuestId(userId) {
-  // Step 1: Fetch all proposals for this guest
+export async function fetchProposalsByIds(proposalIds) {
+  if (!proposalIds || proposalIds.length === 0) {
+    console.warn('⚠️ No proposal IDs to fetch');
+    return [];
+  }
+
+  // Step 1: Fetch all proposals by IDs
   const { data: proposals, error: proposalError } = await supabase
     .from('proposal')
     .select(`
@@ -91,7 +130,7 @@ export async function fetchProposalsByGuestId(userId) {
       "virtual meeting",
       "Is Finalized"
     `)
-    .eq('Guest', userId)
+    .in('_id', proposalIds)
     .order('"Created Date"', { ascending: false });
 
   if (proposalError) {
@@ -99,14 +138,20 @@ export async function fetchProposalsByGuestId(userId) {
     throw new Error(`Failed to fetch proposals: ${proposalError.message}`);
   }
 
+  // Filter out null/deleted proposals
   const validProposals = (proposals || []).filter(p => p !== null && !p.Deleted);
 
   if (validProposals.length === 0) {
-    console.log('✅ No proposals found for user');
+    console.log('✅ No valid proposals found');
     return [];
   }
 
-  console.log(`✅ Fetched ${validProposals.length} proposals for guest ${userId}`);
+  // Log if some proposals were orphaned
+  if (validProposals.length < proposalIds.length) {
+    console.warn(`⚠️ Found ${validProposals.length} proposals out of ${proposalIds.length} IDs (${proposalIds.length - validProposals.length} orphaned)`);
+  } else {
+    console.log(`✅ Fetched ${validProposals.length} proposals from user's list`);
+  }
 
   // Step 2: Extract unique listing IDs from proposals
   const listingIds = [...new Set(validProposals.map(p => p.Listing).filter(Boolean))];
@@ -209,15 +254,15 @@ export async function fetchUserProposalsFromUrl() {
     throw new Error('No user ID found in URL path. Expected: /guest-proposals/{userId}');
   }
 
-  // Step 2: Fetch user data
-  const user = await fetchUser(userId);
+  // Step 2: Fetch user data with Proposals List
+  const user = await fetchUserWithProposalList(userId);
 
-  // Step 3: Fetch proposals directly from proposal table (more reliable approach)
-  const proposals = await fetchProposalsByGuestId(userId);
+  // Step 3: Extract proposal IDs from user's Proposals List
+  const proposalIds = extractProposalIds(user);
 
   // Handle case where user has no proposals
-  if (proposals.length === 0) {
-    console.log('ℹ️ User has no proposals');
+  if (proposalIds.length === 0) {
+    console.log('ℹ️ User has no proposal IDs in their Proposals List');
     return {
       user,
       proposals: [],
@@ -225,7 +270,19 @@ export async function fetchUserProposalsFromUrl() {
     };
   }
 
-  // Step 4: Check for preselected proposal
+  // Step 4: Fetch proposals by those specific IDs
+  const proposals = await fetchProposalsByIds(proposalIds);
+
+  if (proposals.length === 0) {
+    console.log('ℹ️ No valid proposals found (all IDs may be orphaned)');
+    return {
+      user,
+      proposals: [],
+      selectedProposal: null
+    };
+  }
+
+  // Step 5: Check for preselected proposal
   const preselectedId = getProposalIdFromQuery();
   let selectedProposal = null;
 
