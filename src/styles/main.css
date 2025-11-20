@@ -6,30 +6,39 @@
 }
 
 :root {
-    --primary-color: #7C3AED;
-    --primary-hover: #6D28D9;
+    /* Original Bubble.io Colors */
+    --primary-purple: rgb(107, 78, 255);
+    --dark-purple: rgb(49, 19, 93);
+    --indigo: rgb(99, 102, 241);
+    --primary-color: rgb(107, 78, 255);
+    --primary-hover: rgb(99, 102, 241);
     --secondary-color: #E5E7EB;
-    --danger-color: #EF4444;
+    --danger-color: rgb(239, 68, 68);
     --danger-hover: #DC2626;
-    --success-color: #10B981;
-    --text-primary: #1F2937;
-    --text-secondary: #6B7280;
-    --border-color: #E5E7EB;
-    --background: #FFFFFF;
-    --background-secondary: #F9FAFB;
-    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --success-color: rgb(27, 165, 78);
+    --text-primary: rgb(49, 19, 93);
+    --text-secondary: rgb(107, 114, 128);
+    --link-color: rgb(1, 67, 125);
+    --border-color: rgb(212, 212, 212);
+    --background: rgb(255, 255, 255);
+    --background-secondary: rgb(244, 244, 248);
+    --success-banner-bg: rgb(225, 255, 225);
+    --shadow: rgb(170, 170, 170) 0px 2px 4px 0px;
+    --shadow-lg: rgba(0, 0, 0, 0) 0px 4px 6px 0px;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    color: var(--text-primary);
-    background-color: var(--background-secondary);
-    line-height: 1.6;
+    font-family: Helvetica, Arial, sans-serif;
+    color: rgb(0, 0, 0);
+    background-color: rgb(244, 244, 248);
+    line-height: 16px;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1024px;
     margin: 0 auto;
     padding: 0 1rem;
 }
@@ -40,14 +49,19 @@ body {
 
 /* Header */
 .header {
-    background: var(--background);
-    border-bottom: 1px solid var(--border-color);
-    padding: 1rem 0;
-    box-shadow: var(--shadow);
+    display: grid;
+    position: relative;
+    width: 100%;
+    height: 260px;
+    padding: 8px;
+    background-color: rgb(49, 19, 93);
+    z-index: 6;
+    border-bottom: none;
+    box-shadow: none;
 }
 
 .header-container {
-    max-width: 1200px;
+    max-width: 1024px;
     margin: 0 auto;
     padding: 0 1rem;
     display: flex;
@@ -57,7 +71,7 @@ body {
 
 .header-logo h1 {
     font-size: 1.5rem;
-    color: var(--primary-color);
+    color: rgb(107, 78, 255);
     font-weight: 700;
 }
 
@@ -68,14 +82,17 @@ body {
 }
 
 .nav-link {
-    color: var(--text-primary);
+    color: rgb(1, 67, 125);
     text-decoration: none;
     font-weight: 500;
     position: relative;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 16px;
 }
 
 .nav-link:hover {
-    color: var(--primary-color);
+    color: rgb(107, 78, 255);
 }
 
 .message-icon {
@@ -103,7 +120,12 @@ body {
 
 /* Main Content */
 .main-content {
-    min-height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    background-color: rgb(244, 244, 248);
+    position: relative;
+    min-height: calc(100vh - 260px);
     padding: 2rem 0;
 }
 
@@ -192,47 +214,66 @@ body {
 
 /* Proposal Selector */
 .proposal-selector {
-    background: var(--background);
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    box-shadow: var(--shadow);
-    margin-bottom: 2rem;
+    background: transparent;
+    padding: 0;
+    margin-bottom: 1.5rem;
 }
 
 .selector-header {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .selector-header h2 {
-    font-size: 1.25rem;
+    font-family: "Open Sans", sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 31.44px;
+    color: rgb(107, 78, 255);
     margin: 0;
+    display: block;
+    width: auto;
+    height: auto;
 }
 
 .proposal-count {
-    background: var(--primary-color);
+    background: rgb(107, 78, 255);
     color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: 0.875rem;
+    padding: 0.125rem 0.625rem;
+    border-radius: 12px;
+    font-size: 14px;
     font-weight: 600;
+    font-family: "Open Sans", sans-serif;
+    min-width: 24px;
+    text-align: center;
 }
 
 .proposal-dropdown {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    font-size: 1rem;
+    display: block;
+    position: relative;
+    width: 399px;
+    height: 45px;
+    padding: 0px 15px 0px 5px;
+    font-size: 16px;
+    font-weight: 400;
+    font-family: Lato, sans-serif;
+    color: rgb(49, 19, 93);
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(212, 212, 212);
+    border-radius: 10px;
     cursor: pointer;
 }
 
 .proposal-dropdown:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    border-color: rgb(107, 78, 255);
+    box-shadow: 0 0 0 3px rgba(107, 78, 255, 0.1);
+}
+
+.proposal-dropdown:hover {
+    border-color: rgb(156, 163, 175);
 }
 
 /* Proposal Card */
