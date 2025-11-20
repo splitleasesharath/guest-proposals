@@ -139,8 +139,8 @@ export async function fetchProposalsByIds(proposalIds) {
     throw new Error(`Failed to fetch proposals: ${proposalError.message}`);
   }
 
-  // Filter out null/deleted proposals
-  const validProposals = (proposals || []).filter(p => p !== null && !p.Deleted);
+  // Filter out only null proposals (include deleted proposals)
+  const validProposals = (proposals || []).filter(p => p !== null);
 
   if (validProposals.length === 0) {
     console.log('✅ No valid proposals found');
