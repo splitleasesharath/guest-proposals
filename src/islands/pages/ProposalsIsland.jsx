@@ -18,6 +18,7 @@ import { transformProposalData } from '../../lib/supabase/dataTransformers.js';
 import ProposalSelector from '../../components/proposals/ProposalSelector.jsx';
 import ProposalCard from '../../components/proposals/ProposalCard.jsx';
 import VirtualMeetingsSection from '../../components/proposals/VirtualMeetingsSection.jsx';
+import FloatingProposalSummary from '../../components/proposals/FloatingProposalSummary.jsx';
 import LoadingState from '../../components/proposals/LoadingState.jsx';
 import ErrorState from '../../components/proposals/ErrorState.jsx';
 import EmptyState from '../../components/proposals/EmptyState.jsx';
@@ -116,6 +117,11 @@ export default function ProposalsIsland() {
       {/* Virtual Meetings Section */}
       {selectedProposal && (
         <VirtualMeetingsSection proposal={selectedProposal} />
+      )}
+
+      {/* Floating Proposal Summary - Desktop only */}
+      {selectedProposal && (
+        <FloatingProposalSummary proposal={selectedProposal} />
       )}
     </div>
   );

@@ -287,21 +287,42 @@
 /* Compare Terms Modal */
 .modal-compare-terms {
   width: 55%;
-  max-width: 800px;
+  max-width: 900px;
   min-height: 0;
   max-height: 90vh;
+}
+
+.modal-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #6B7280;
+  margin: 0.25rem 0 0 0;
 }
 
 .compare-terms-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 .compare-column {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding: 1.5rem;
+  background: #F9FAFB;
+  border-radius: 12px;
+  border: 1px solid #E5E7EB;
+}
+
+.compare-column.original {
+  background: #F9FAFB;
+}
+
+.compare-column.modified {
+  background: #F0EBFF;
+  border-color: #6B4EFF;
 }
 
 .compare-column h3 {
@@ -322,6 +343,12 @@
   color: #6B4EFF;
 }
 
+.compare-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .compare-item {
   display: flex;
   flex-direction: column;
@@ -329,19 +356,24 @@
 }
 
 .compare-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   font-family: 'Inter', sans-serif;
   color: #6B7280;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin: 0;
 }
 
 .compare-value {
-  font-size: 16px;
+  font-size: 15px;
   font-family: 'Inter', sans-serif;
   color: #111827;
   font-weight: 500;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .compare-value.changed {
@@ -352,20 +384,167 @@
 .compare-value.price-changed {
   color: #059669;
   font-weight: 700;
+  font-size: 16px;
+}
+
+.change-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #6B4EFF;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Summary of Changes */
+.compare-summary {
+  padding: 1.5rem;
+  background: #FEF3C7;
+  border: 1px solid #FCD34D;
+  border-radius: 12px;
+  margin-top: 1rem;
+}
+
+.compare-summary h4 {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #92400E;
+  margin: 0 0 0.75rem 0;
+}
+
+.changes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.changes-list li {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #78350F;
+  line-height: 1.5;
+}
+
+.changes-list strong {
+  font-weight: 600;
+  color: #92400E;
 }
 
 /* Confirmation Modal */
 .modal-confirm {
-  width: 450px;
+  width: 500px;
   max-width: 90vw;
 }
 
+.modal-modification {
+  width: 550px;
+}
+
+.modification-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.modification-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.confirm-message-box {
+  padding: 1.25rem;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
 .confirm-message {
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.6;
   color: #374151;
   font-family: 'Inter', sans-serif;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1rem 0;
+}
+
+.confirm-notice {
+  padding: 0.75rem;
+  background: #FEF3C7;
+  border: 1px solid #FCD34D;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #78350F;
+  font-family: 'Inter', sans-serif;
+}
+
+.confirm-notice strong {
+  font-weight: 600;
+  color: #92400E;
+}
+
+.modification-preview {
+  padding: 1.25rem;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 12px;
+}
+
+.preview-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1E40AF;
+  margin: 0 0 0.75rem 0;
+}
+
+.preview-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.preview-list li {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #1E3A8A;
+  line-height: 1.5;
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+.preview-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #3B82F6;
+  font-weight: 700;
+}
+
+.modal-confirm-footer {
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.confirm-actions-group {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.confirm-actions-group .btn-modal {
+  flex: 1;
 }
 
 .confirm-actions {

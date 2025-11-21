@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { formatPrice, formatDate } from '../../lib/supabase/dataTransformers.js';
 import MapsModal from './MapsModal.jsx';
 import HostProfileModal from './HostProfileModal.jsx';
+import CompareTermsModal from './CompareTermsModal.jsx';
 
 // Helper to get status display info
 function getStatusInfo(status) {
@@ -81,6 +82,8 @@ export default function ProposalCard({ proposal }) {
   const [showMapsModal, setShowMapsModal] = useState(false);
   const [showHostProfileModal, setShowHostProfileModal] = useState(false);
   const [showRequestMeetingModal, setShowRequestMeetingModal] = useState(false);
+  const [showCompareTermsModal, setShowCompareTermsModal] = useState(false);
+  const [showHouseRules, setShowHouseRules] = useState(false);
 
   if (!proposal) {
     return (
@@ -134,8 +137,31 @@ export default function ProposalCard({ proposal }) {
                 <p>Anticipated Move-in {formatDate(proposal.moveInStart)}</p>
               )}
             </div>
-            {listing?.houseRules && (
-              <button className="link-button">See House Rules</button>
+
+            {/* House Rules Accordion */}
+            {listing?.houseRules && listing.houseRules.length > 0 && (
+              <div className="house-rules-accordion">
+                <button
+                  className="house-rules-toggle"
+                  onClick={() => setShowHouseRules(!showHouseRules)}
+                  aria-expanded={showHouseRules}
+                >
+                  <span>See House Rules</span>
+                  <span className={`toggle-icon ${showHouseRules ? 'open' : ''}`}>▼</span>
+                </button>
+                {showHouseRules && (
+                  <div className="house-rules-content">
+                    <ul className="house-rules-list">
+                      {listing.houseRules.map((rule, index) => (
+                        <li key={index} className="house-rule-item">
+                          <span className="rule-bullet">•</span>
+                          <span className="rule-text">{rule.name || rule}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
@@ -182,7 +208,10 @@ export default function ProposalCard({ proposal }) {
               )}
 
               {proposal.status === 'Host Counteroffer Submitted / Awaiting Guest Review' && (
-                <button className="btn-primary-action btn-review-counteroffer">
+                <button
+                  className="btn-primary-action btn-review-counteroffer"
+                  onClick={() => setShowCompareTermsModal(true)}
+                >
                   Review Counteroffer
                 </button>
               )}
@@ -244,6 +273,12 @@ export default function ProposalCard({ proposal }) {
         isOpen={showHostProfileModal}
         onClose={() => setShowHostProfileModal(false)}
         host={host}
+      />
+      <CompareTermsModal
+        isOpen={showCompareTermsModal}
+        onClose={() => setShowCompareTermsModal(false)}
+        originalProposal={proposal.originalTerms || proposal}
+        modifiedProposal={proposal.counterofferTerms || proposal}
       />
     </div>
   );
