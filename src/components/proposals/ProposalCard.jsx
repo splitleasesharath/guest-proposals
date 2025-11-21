@@ -24,14 +24,14 @@ function getStatusInfo(status) {
 }
 
 // Helper to render weekly schedule with circular badges
-function WeeklySchedule({ nightsSelected }) {
+function WeeklySchedule({ daysSelected }) {
   const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   return (
     <div className="weekly-schedule">
       {days.map((day, index) => {
-        const isSelected = nightsSelected && nightsSelected.includes(dayNames[index]);
+        const isSelected = daysSelected && daysSelected.includes(dayNames[index]);
         return (
           <div key={index} className={`day-badge ${isSelected ? 'selected' : 'unselected'}`}>
             {day}
@@ -120,9 +120,9 @@ export default function ProposalCard({ proposal }) {
           <div className="schedule-section">
             <p className="schedule-days">{proposal.checkInDay} to {proposal.checkOutDay}</p>
             <p className="duration-text">Duration <span className="duration-value">{proposal.reservationWeeks} Weeks</span></p>
-            <WeeklySchedule nightsSelected={proposal.nightsSelected} />
+            <WeeklySchedule daysSelected={proposal.daysSelected} />
             <div className="schedule-times">
-              <p>Check-in {listing?.checkInTime} pm Check-out {listing?.checkOutTime} am</p>
+              <p>Check-in {listing?.checkInTime} Check-out {listing?.checkOutTime}</p>
               {proposal.moveInStart && (
                 <p>Anticipated Move-in {formatDate(proposal.moveInStart)}</p>
               )}
@@ -162,8 +162,8 @@ export default function ProposalCard({ proposal }) {
           <div className="host-profile-card">
             {/* Background: Listing Photo */}
             <div className="host-card-background">
-              {listing?.photos && listing.photos[0] && (
-                <img src={`https://via.placeholder.com/400x300?text=Property`} alt="Property" className="property-photo" />
+              {listing?.featuredPhotoUrl && (
+                <img src={listing.featuredPhotoUrl} alt={listing.name} className="property-photo" />
               )}
             </div>
             {/* Overlay: Host Info */}

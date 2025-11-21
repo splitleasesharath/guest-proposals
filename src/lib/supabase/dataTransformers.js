@@ -57,6 +57,7 @@ export function transformListingData(rawListing) {
     state: rawListing['Location - State'],
     zipCode: rawListing['Location - Zip Code'],
     photos: rawListing['Features - Photos'],
+    featuredPhotoUrl: rawListing.featuredPhotoUrl, // Featured photo from listing_photo table
     houseRules: rawListing['Features - House Rules'],
     checkInTime: rawListing['NEW Date Check-in Time'],
     checkOutTime: rawListing['NEW Date Check-out Time']

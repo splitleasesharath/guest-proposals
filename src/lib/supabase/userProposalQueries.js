@@ -197,6 +197,26 @@ export async function fetchProposalsByIds(proposalIds) {
     return validProposals.map(p => ({ ...p, listing: null }));
   }
 
+  // Step 3.25: Fetch featured photos for listings
+  console.log(`📸 Fetching featured photos for ${listingIds.length} listings`);
+
+  const { data: featuredPhotos, error: photoError } = await supabase
+    .from('listing_photo')
+    .select(`
+      _id,
+      "Listing",
+      "Photo"
+    `)
+    .in('"Listing"', listingIds)
+    .eq('"toggleMainPhoto"', true)
+    .eq('"Active"', true);
+
+  if (photoError) {
+    console.error('❌ Error fetching featured photos:', photoError);
+  } else {
+    console.log(`✅ Fetched ${(featuredPhotos || []).length} featured photos`);
+  }
+
   // Step 3.5: Fetch borough and neighborhood names from lookup tables
   const boroughIds = [...new Set((listings || []).map(l => l['Location - Borough']).filter(Boolean))];
   const hoodIds = [...new Set((listings || []).map(l => l['Location - Hood']).filter(Boolean))];
@@ -303,6 +323,8 @@ export async function fetchProposalsByIds(proposalIds) {
   // Key boroughs and hoods by their _id
   const boroughMap = new Map(boroughs.map(b => [b._id, b['Display Borough']]));
   const hoodMap = new Map(hoods.map(h => [h._id, h['Display']]));
+  // Key featured photos by their Listing ID
+  const featuredPhotoMap = new Map((featuredPhotos || []).map(p => [p.Listing, p.Photo]));
 
   // Step 7: Manually join the data
   const enrichedProposals = validProposals.map(proposal => {
@@ -314,6 +336,8 @@ export async function fetchProposalsByIds(proposalIds) {
     // Lookup borough and hood names
     const boroughName = listing ? boroughMap.get(listing['Location - Borough']) : null;
     const hoodName = listing ? hoodMap.get(listing['Location - Hood']) : null;
+    // Lookup featured photo URL
+    const featuredPhotoUrl = listing ? featuredPhotoMap.get(listing._id) : null;
 
     return {
       ...proposal,
@@ -321,7 +345,8 @@ export async function fetchProposalsByIds(proposalIds) {
         ...listing,
         host,
         boroughName,
-        hoodName
+        hoodName,
+        featuredPhotoUrl
       } : null,
       guest: guest || null
     };

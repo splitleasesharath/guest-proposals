@@ -37,6 +37,12 @@ body {
     padding: 0;
 }
 
+main {
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+}
+
 .container {
     max-width: 1024px;
     margin: 0 auto;
@@ -212,11 +218,21 @@ body {
     font-size: 0.875rem;
 }
 
+/* Proposals Page Container */
+.proposals-page {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
 /* Proposal Selector */
 .proposal-selector {
     background: transparent;
     padding: 0;
-    margin-bottom: 1.5rem;
+    margin: 0 auto 1.5rem;
+    max-width: 1200px;
 }
 
 .selector-header {
@@ -274,6 +290,38 @@ body {
 
 .proposal-dropdown:hover {
     border-color: rgb(156, 163, 175);
+}
+
+/* Responsive Styles for Proposals Page */
+@media (max-width: 768px) {
+    .proposals-page {
+        padding: 1.5rem 1rem;
+    }
+
+    .proposal-dropdown {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .selector-header h2 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .proposals-page {
+        padding: 1rem 0.75rem;
+    }
+
+    .selector-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .selector-header h2 {
+        font-size: 18px;
+    }
 }
 
 /* Proposal Card */

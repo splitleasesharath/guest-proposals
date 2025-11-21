@@ -8,8 +8,9 @@
     background: rgb(255, 255, 255);
     border-radius: 16px;
     padding: 0;
-    margin: 15px 0 0;
-    width: 1024px;
+    margin: 15px auto 0;
+    width: 100%;
+    max-width: 1200px;
     border: 1px solid rgb(212, 212, 212);
     box-shadow: rgba(0, 0, 0, 0) 0px 4px 6px 0px;
     display: flex;
@@ -27,7 +28,8 @@
 
 .status-banner.status-green {
     display: block;
-    width: 467px;
+    max-width: 467px;
+    width: 100%;
     padding: 0px;
     background-color: rgb(225, 255, 225);
     border-radius: 10px;
@@ -56,10 +58,11 @@
 /* Two-Column Layout */
 .proposal-content {
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: minmax(500px, 1fr) 400px;
     gap: 2.5rem;
     margin-bottom: 0;
     padding: 2rem;
+    box-sizing: border-box;
 }
 
 /* Left Column Styles */
@@ -74,6 +77,8 @@
     border-bottom: none;
     padding-bottom: 0;
     margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
 }
 
 .listing-title {
@@ -83,7 +88,7 @@
     color: rgb(49, 19, 93);
     padding: 0px 2px 1px;
     display: block;
-    margin: 0 0 0.375rem 0;
+    margin: 0 0 0.5rem 0;
 }
 
 .listing-subtitle {
@@ -92,9 +97,11 @@
     font-weight: 400;
     line-height: 19.2px;
     color: rgb(107, 114, 128);
-    width: 542px;
-    height: 20px;
-    margin: 0 0 10px;
+    max-width: 542px;
+    width: 100%;
+    min-height: 20px;
+    margin: 0 0 1rem 0;
+    display: block;
 }
 
 .listing-actions {
@@ -159,8 +166,9 @@
 
 .schedule-days {
     display: block;
-    width: 356px;
-    height: 23px;
+    max-width: 356px;
+    width: 100%;
+    min-height: 23px;
     font-size: 14px;
     font-weight: 600;
     font-family: "DM Sans", sans-serif;
@@ -182,14 +190,16 @@
 /* Weekly Schedule with Circular Badges */
 .weekly-schedule {
     display: grid;
-    width: 230px;
+    grid-template-columns: repeat(7, 1fr);
+    max-width: 280px;
+    width: 100%;
     margin: 0px 4px 0px 0px;
-    gap: 0px;
+    gap: 4px;
     border-radius: 5px;
 }
 
 .day-badge {
-    width: 32.5625px;
+    width: 34px;
     height: 34px;
     border-radius: 50%;
     display: flex;
@@ -555,10 +565,29 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1100px) {
+@media (max-width: 1280px) {
+    .proposal-card {
+        margin: 15px 1rem 0;
+    }
+}
+
+@media (max-width: 1000px) {
+    .proposal-content {
+        grid-template-columns: 1fr 350px;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .host-card-background {
+        height: 300px;
+    }
+}
+
+@media (max-width: 900px) {
     .proposal-card {
         width: 100%;
-        max-width: 1024px;
+        max-width: 100%;
+        margin: 15px 0 0;
     }
 
     .proposal-content {
@@ -566,13 +595,20 @@
         padding: 1.5rem;
     }
 
+    .proposal-left {
+        min-width: 0;
+    }
+
     .proposal-right {
         order: -1;
+        margin-bottom: 2rem;
     }
 
     .host-profile-card {
         position: relative;
         top: 0;
+        max-width: 500px;
+        margin: 0 auto;
     }
 
     .listing-subtitle {
@@ -591,6 +627,14 @@
 }
 
 @media (max-width: 768px) {
+    .proposal-card {
+        border-radius: 12px;
+    }
+
+    .proposal-content {
+        padding: 1rem;
+    }
+
     .progress-tracker {
         flex-wrap: wrap;
         gap: 1rem;
@@ -602,9 +646,66 @@
 
     .weekly-schedule {
         width: 100%;
+        max-width: 100%;
     }
 
     .schedule-days {
         width: 100%;
+        height: auto;
+    }
+
+    .listing-subtitle {
+        width: 100%;
+    }
+
+    .listing-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-view-listing,
+    .btn-view-map {
+        width: 100%;
+    }
+
+    .pricing-grid {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .pricing-details-right {
+        text-align: left;
+        width: 100%;
+    }
+
+    .nightly-rate {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .proposal-content {
+        padding: 0.75rem;
+    }
+
+    .schedule-section,
+    .pricing-section {
+        padding: 1rem;
+    }
+
+    .progress-tracker {
+        padding: 1rem 0;
+    }
+
+    .progress-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 12px;
+    }
+
+    .progress-label {
+        font-size: 11px;
+        width: 100px;
     }
 }
