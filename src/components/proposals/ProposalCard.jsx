@@ -3,7 +3,10 @@
  * Displays detailed information about a selected proposal
  */
 
+import { useState } from 'react';
 import { formatPrice, formatDate } from '../../lib/supabase/dataTransformers.js';
+import MapsModal from './MapsModal.jsx';
+import HostProfileModal from './HostProfileModal.jsx';
 
 // Helper to get status display info
 function getStatusInfo(status) {
@@ -75,6 +78,10 @@ function ProgressTracker({ currentStage }) {
 }
 
 export default function ProposalCard({ proposal }) {
+  const [showMapsModal, setShowMapsModal] = useState(false);
+  const [showHostProfileModal, setShowHostProfileModal] = useState(false);
+  const [showRequestMeetingModal, setShowRequestMeetingModal] = useState(false);
+
   if (!proposal) {
     return (
       <div className="proposal-card">
@@ -112,7 +119,7 @@ export default function ProposalCard({ proposal }) {
             </p>
             <div className="listing-actions">
               <button className="btn-view-listing">View Listing</button>
-              <button className="btn-view-map">View Map</button>
+              <button className="btn-view-map" onClick={() => setShowMapsModal(true)}>View Map</button>
             </div>
           </div>
 
@@ -143,6 +150,9 @@ export default function ProposalCard({ proposal }) {
                 {proposal.damageDeposit && (
                   <p className="deposit">Damage deposit {formatPrice(proposal.damageDeposit)}</p>
                 )}
+                {proposal.cleaningFee && proposal.cleaningFee !== 0 && (
+                  <p className="cleaning-fee">Cleaning fee {formatPrice(proposal.cleaningFee)}</p>
+                )}
               </div>
               <div className="pricing-details-right">
                 {proposal.nightlyPrice && (
@@ -153,7 +163,47 @@ export default function ProposalCard({ proposal }) {
                 )}
               </div>
             </div>
-            <button className="btn-delete-proposal">Delete Proposal</button>
+
+            {/* Action Buttons - Dynamic based on status */}
+            <div className="proposal-actions">
+              {/* Request Virtual Meeting - Show for active proposals */}
+              {!proposal.status.includes('Cancelled') && !proposal.status.includes('Rejected') && (
+                <button
+                  className="btn-request-meeting"
+                  onClick={() => setShowRequestMeetingModal(true)}
+                >
+                  Request Virtual Meeting
+                </button>
+              )}
+
+              {/* Status-based Action Buttons */}
+              {proposal.status === 'Proposal Submitted by guest - Awaiting Rental Application' && (
+                <button className="btn-primary-action">Submit Rental Application</button>
+              )}
+
+              {proposal.status === 'Host Counteroffer Submitted / Awaiting Guest Review' && (
+                <button className="btn-primary-action btn-review-counteroffer">
+                  Review Counteroffer
+                </button>
+              )}
+
+              {proposal.status === 'Lease Documents Sent for Review' && (
+                <button className="btn-primary-action btn-review-docs">
+                  Review Lease Documents
+                </button>
+              )}
+
+              {proposal.status === 'Proposal or Counteroffer Accepted / Drafting Lease Documents' && (
+                <button className="btn-primary-action btn-see-details">
+                  See Details
+                </button>
+              )}
+
+              {/* Cancel/Delete Proposal */}
+              {!proposal.status.includes('Cancelled') && !proposal.status.includes('Rejected') && (
+                <button className="btn-delete-proposal">Cancel Proposal</button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -172,7 +222,7 @@ export default function ProposalCard({ proposal }) {
                 <img src={host.profilePhoto} alt={host.fullName} className="host-avatar" />
               )}
               <p className="host-name-label">{host?.firstName || host?.fullName}</p>
-              <button className="btn-host-profile">Host Profile</button>
+              <button className="btn-host-profile" onClick={() => setShowHostProfileModal(true)}>Host Profile</button>
               <button className="btn-send-message">Send a Message</button>
             </div>
           </div>
@@ -183,6 +233,18 @@ export default function ProposalCard({ proposal }) {
       <div className="progress-tracker-container">
         <ProgressTracker currentStage={proposal.proposalStage} />
       </div>
+
+      {/* Modals */}
+      <MapsModal
+        isOpen={showMapsModal}
+        onClose={() => setShowMapsModal(false)}
+        listing={listing}
+      />
+      <HostProfileModal
+        isOpen={showHostProfileModal}
+        onClose={() => setShowHostProfileModal(false)}
+        host={host}
+      />
     </div>
   );
 }

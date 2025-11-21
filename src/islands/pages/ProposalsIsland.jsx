@@ -17,6 +17,7 @@ import { updateUrlWithProposal } from '../../lib/utils/urlParser.js';
 import { transformProposalData } from '../../lib/supabase/dataTransformers.js';
 import ProposalSelector from '../../components/proposals/ProposalSelector.jsx';
 import ProposalCard from '../../components/proposals/ProposalCard.jsx';
+import VirtualMeetingsSection from '../../components/proposals/VirtualMeetingsSection.jsx';
 import LoadingState from '../../components/proposals/LoadingState.jsx';
 import ErrorState from '../../components/proposals/ErrorState.jsx';
 import EmptyState from '../../components/proposals/EmptyState.jsx';
@@ -110,6 +111,11 @@ export default function ProposalsIsland() {
           proposal={selectedProposal}
           onUpdate={loadProposals}  // Refresh after actions
         />
+      )}
+
+      {/* Virtual Meetings Section */}
+      {selectedProposal && (
+        <VirtualMeetingsSection proposal={selectedProposal} />
       )}
     </div>
   );

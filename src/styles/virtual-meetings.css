@@ -1,0 +1,486 @@
+/**
+ * Virtual Meetings Section Styles
+ * Matches Bubble.io design specifications
+ */
+
+.virtual-meetings-section {
+  max-width: 1200px;
+  margin: 2.5rem auto;
+  padding: 0 1rem;
+}
+
+.vm-section-header {
+  margin-bottom: 1.5rem;
+}
+
+.vm-section-title {
+  font-family: 'Lato', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #31135D;
+  margin: 0 0 0.5rem 0;
+}
+
+.vm-section-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #6B7280;
+  margin: 0;
+}
+
+/* Virtual Meeting Cards */
+.vm-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.vm-card {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: box-shadow 0.2s;
+}
+
+.vm-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Host Section */
+.vm-card-host {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.vm-host-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #E5E7EB;
+}
+
+.vm-host-info {
+  flex: 1;
+}
+
+.vm-host-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
+}
+
+.vm-meeting-id {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #6B7280;
+  margin: 0;
+}
+
+/* Meeting Details */
+.vm-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.vm-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vm-detail-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vm-detail-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #111827;
+}
+
+.vm-meeting-link {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #6366F1;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.vm-meeting-link:hover {
+  color: #4F46E5;
+}
+
+/* Status Badge */
+.vm-status-container {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.vm-status-badge {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vm-status-suggested {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.vm-status-confirmed {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.vm-status-awaiting {
+  background: #DBEAFE;
+  color: #1E40AF;
+}
+
+.vm-status-cancelled {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+/* Actions */
+.vm-card-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: auto;
+}
+
+.btn-vm-respond,
+.btn-vm-reschedule {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-vm-respond {
+  background: #6366F1;
+  color: #FFFFFF;
+  box-shadow: 0 2px 4px rgba(170, 170, 170, 0.5);
+}
+
+.btn-vm-respond:hover {
+  background: #4F46E5;
+}
+
+.btn-vm-reschedule {
+  background: #E5E7EB;
+  color: #6B7280;
+}
+
+.btn-vm-reschedule:hover:not(:disabled) {
+  background: #D1D5DB;
+}
+
+.btn-vm-reschedule:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Respond Modal Specific Styles */
+.modal-respond-vm {
+  width: 600px;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.vm-respond-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #E5E7EB;
+  margin-bottom: 1.5rem;
+}
+
+.vm-respond-host {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.vm-respond-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #E5E7EB;
+}
+
+.vm-respond-host-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
+}
+
+.vm-respond-meeting-id {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #6B7280;
+  margin: 0;
+}
+
+.vm-respond-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.vm-info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vm-info-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vm-info-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #111827;
+}
+
+/* Response Actions */
+.vm-respond-actions {
+  margin-bottom: 1.5rem;
+}
+
+.vm-respond-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 1rem 0;
+}
+
+.vm-respond-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-vm-action {
+  padding: 0.75rem 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.btn-vm-accept {
+  background: #D1FAE5;
+  color: #065F46;
+  border-color: #A7F3D0;
+}
+
+.btn-vm-accept:hover {
+  background: #A7F3D0;
+}
+
+.btn-vm-suggest {
+  background: #DBEAFE;
+  color: #1E40AF;
+  border-color: #BFDBFE;
+}
+
+.btn-vm-suggest:hover {
+  background: #BFDBFE;
+}
+
+.btn-vm-decline {
+  background: #FEE2E2;
+  color: #991B1B;
+  border-color: #FECACA;
+}
+
+.btn-vm-decline:hover {
+  background: #FECACA;
+}
+
+/* Confirmation Message */
+.vm-respond-confirm {
+  padding: 1rem;
+  background: #F9FAFB;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+}
+
+.vm-confirm-message {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+  margin: 0;
+}
+
+/* Suggest Time Section */
+.vm-respond-suggest {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vm-suggest-instructions {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #6B7280;
+  margin: 0;
+}
+
+.btn-show-calendar {
+  padding: 0.75rem 1.5rem;
+  background: #6366F1;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-show-calendar:hover {
+  background: #4F46E5;
+}
+
+.vm-time-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.vm-time-selector label {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.vm-time-input {
+  padding: 0.625rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #111827;
+}
+
+/* Decline Section */
+.vm-respond-decline {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vm-decline-instructions {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #6B7280;
+  margin: 0;
+}
+
+.vm-decline-reason {
+  padding: 0.75rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #111827;
+  resize: vertical;
+}
+
+.vm-decline-reason:focus {
+  outline: none;
+  border-color: #6366F1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .vm-cards-container {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-respond-vm {
+    width: 95vw;
+  }
+
+  .vm-respond-buttons {
+    gap: 0.5rem;
+  }
+
+  .btn-vm-action {
+    padding: 0.625rem 1rem;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .virtual-meetings-section {
+    padding: 0;
+  }
+
+  .vm-section-title {
+    font-size: 20px;
+  }
+
+  .vm-card {
+    padding: 1rem;
+  }
+
+  .vm-host-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .vm-respond-avatar {
+    width: 50px;
+    height: 50px;
+  }
+}

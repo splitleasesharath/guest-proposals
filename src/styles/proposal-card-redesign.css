@@ -293,6 +293,13 @@
     font-weight: 400;
 }
 
+.cleaning-fee {
+    font-size: 0.875rem;
+    color: #111827;
+    margin: 0;
+    font-weight: 400;
+}
+
 .pricing-details-right {
     text-align: right;
 }
@@ -338,6 +345,76 @@
 .btn-delete-proposal:hover,
 .btn-cancel-proposal:hover {
     background-color: rgb(220, 38, 38);
+}
+
+/* Proposal Actions Container */
+.proposal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+
+/* Request Virtual Meeting Button */
+.btn-request-meeting {
+    width: 100%;
+    height: 40px;
+    padding: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: Inter, sans-serif;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    background-color: rgb(99, 102, 241);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 2px 4px rgba(170, 170, 170, 0.5);
+}
+
+.btn-request-meeting:hover {
+    background-color: rgb(79, 82, 221);
+}
+
+/* Primary Action Buttons (Status-based) */
+.btn-primary-action {
+    width: 100%;
+    height: 40px;
+    padding: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: Inter, sans-serif;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    background-color: rgb(107, 78, 255);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 2px 4px rgba(170, 170, 170, 0.5);
+}
+
+.btn-primary-action:hover {
+    background-color: rgb(87, 58, 235);
+}
+
+/* Review Counteroffer - Yellow/Warning */
+.btn-review-counteroffer {
+    background-color: rgb(245, 158, 11);
+}
+
+.btn-review-counteroffer:hover {
+    background-color: rgb(217, 119, 6);
+}
+
+/* Review Documents - Blue */
+.btn-review-docs {
+    background-color: rgb(59, 130, 246);
+}
+
+.btn-review-docs:hover {
+    background-color: rgb(37, 99, 235);
 }
 
 .btn-see-details {
