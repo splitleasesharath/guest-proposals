@@ -46,9 +46,9 @@ function WeeklySchedule({ nightsSelected }) {
 function ProgressTracker({ currentStage }) {
   const stages = [
     'Proposal Submitted',
-    'Rental Application Submitted',
-    'Host Review Complete',
-    'Drafting Lease Docs',
+    'Rental App Submitted',
+    'Host Review',
+    'Review Documents',
     'Lease Documents',
     'Initial Payment'
   ];
@@ -57,14 +57,19 @@ function ProgressTracker({ currentStage }) {
 
   return (
     <div className="progress-tracker">
-      {stages.map((stage, index) => (
-        <div key={index} className="progress-step">
-          <div className={`progress-circle ${index <= currentIndex ? 'completed' : ''} ${index === currentIndex ? 'current' : ''}`}>
-            {index < currentIndex ? '✓' : index + 1}
+      {stages.map((stage, index) => {
+        const isCompleted = index < currentIndex;
+        const isCurrent = index === currentIndex;
+
+        return (
+          <div key={index} className={`progress-step ${isCompleted ? 'completed' : ''}`}>
+            <div className={`progress-circle ${isCompleted || isCurrent ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}>
+              {isCompleted ? '✓' : ''}
+            </div>
+            <div className="progress-label">{stage}</div>
           </div>
-          <div className="progress-label">{stage}</div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -99,11 +104,11 @@ export default function ProposalCard({ proposal }) {
         <div className="proposal-left">
           {/* Listing Header */}
           <div className="listing-header">
-            <h2 className="listing-title">{listing?.name}</h2>
+            <h1 className="listing-title">{listing?.name}</h1>
             <p className="listing-subtitle">
               {listing?.hoodName && listing?.boroughName
                 ? `${listing.hoodName}, ${listing.boroughName}`
-                : listing?.hoodName || listing?.boroughName || 'Location'}
+                : listing?.hoodName || listing?.boroughName || ''}
             </p>
             <div className="listing-actions">
               <button className="btn-view-listing">View Listing</button>
@@ -113,13 +118,13 @@ export default function ProposalCard({ proposal }) {
 
           {/* Schedule Section */}
           <div className="schedule-section">
-            <p className="schedule-days"><strong>{proposal.checkInDay}</strong> thru <strong>{proposal.checkOutDay}</strong></p>
-            <p className="duration-text">Duration <strong>{proposal.reservationWeeks} Weeks</strong></p>
+            <p className="schedule-days">{proposal.checkInDay} to {proposal.checkOutDay}</p>
+            <p className="duration-text">Duration <span className="duration-value">{proposal.reservationWeeks} Weeks</span></p>
             <WeeklySchedule nightsSelected={proposal.nightsSelected} />
             <div className="schedule-times">
-              <p>Check-in {listing?.checkInTime} Check-out {listing?.checkOutTime}</p>
+              <p>Check-in {listing?.checkInTime} pm Check-out {listing?.checkOutTime} am</p>
               {proposal.moveInStart && (
-                <p><strong>Anticipated Move-in</strong> {formatDate(proposal.moveInStart)}</p>
+                <p>Anticipated Move-in {formatDate(proposal.moveInStart)}</p>
               )}
             </div>
             {listing?.houseRules && (

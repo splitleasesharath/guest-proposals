@@ -16,8 +16,7 @@ export default function ProposalSelector({
   return (
     <div className="proposal-selector">
       <div className="selector-header">
-        <h2>My Proposals</h2>
-        <span className="proposal-count">{proposals.length}</span>
+        <h2>My Proposals ({proposals.length})</h2>
       </div>
 
       <select
