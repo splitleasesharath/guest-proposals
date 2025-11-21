@@ -19,6 +19,7 @@ import ProposalSelector from '../../components/proposals/ProposalSelector.jsx';
 import ProposalCard from '../../components/proposals/ProposalCard.jsx';
 import VirtualMeetingsSection from '../../components/proposals/VirtualMeetingsSection.jsx';
 import FloatingProposalSummary from '../../components/proposals/FloatingProposalSummary.jsx';
+import DashboardConfigPanel from '../../components/proposals/DashboardConfigPanel.jsx';
 import LoadingState from '../../components/proposals/LoadingState.jsx';
 import ErrorState from '../../components/proposals/ErrorState.jsx';
 import EmptyState from '../../components/proposals/EmptyState.jsx';
@@ -29,6 +30,15 @@ export default function ProposalsIsland() {
   const [selectedProposal, setSelectedProposal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showConfig, setShowConfig] = useState(false);
+  const [dashboardConfig, setDashboardConfig] = useState({
+    view: 'card',
+    showCancelled: false,
+    showRejected: false,
+    sortBy: 'date-desc',
+    emailNotifications: true,
+    desktopNotifications: false
+  });
 
   // Load data on mount
   useEffect(() => {
@@ -99,6 +109,15 @@ export default function ProposalsIsland() {
   // Main view
   return (
     <div className="proposals-page">
+      {/* Settings Button */}
+      <button
+        className="dashboard-settings-btn"
+        onClick={() => setShowConfig(true)}
+        aria-label="Dashboard settings"
+      >
+        ⚙️
+      </button>
+
       {/* Proposal Selector Dropdown */}
       <ProposalSelector
         proposals={proposals}
@@ -123,6 +142,14 @@ export default function ProposalsIsland() {
       {selectedProposal && (
         <FloatingProposalSummary proposal={selectedProposal} />
       )}
+
+      {/* Config Panel */}
+      <DashboardConfigPanel
+        isOpen={showConfig}
+        onClose={() => setShowConfig(false)}
+        config={dashboardConfig}
+        onConfigChange={setDashboardConfig}
+      />
     </div>
   );
 }
