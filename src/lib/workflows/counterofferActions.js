@@ -127,7 +127,7 @@ export async function requestCounterModification(proposalId, modifications) {
  * @param {Object} proposal - Proposal object
  * @returns {boolean} True if counteroffer needs review
  */
-export function hasP endingCounteroffer(proposal) {
+export function hasPendingCounteroffer(proposal) {
   if (!proposal) {
     return false;
   }
