@@ -15,6 +15,11 @@ import { useState, useEffect } from 'react';
 import { fetchUserProposalsFromUrl } from '../../lib/supabase/userProposalQueries.js';
 import { updateUrlWithProposal } from '../../lib/utils/urlParser.js';
 import { transformProposalData } from '../../lib/supabase/dataTransformers.js';
+import {
+  loadDashboardConfig,
+  saveDashboardConfig,
+  applyConfigFiltersAndSort
+} from '../../lib/utils/dashboardConfig.js';
 import ProposalSelector from '../../components/proposals/ProposalSelector.jsx';
 import ProposalCard from '../../components/proposals/ProposalCard.jsx';
 import VirtualMeetingsSection from '../../components/proposals/VirtualMeetingsSection.jsx';
@@ -27,23 +32,26 @@ import EmptyState from '../../components/proposals/EmptyState.jsx';
 export default function ProposalsIsland() {
   const [currentUser, setCurrentUser] = useState(null);
   const [proposals, setProposals] = useState([]);
+  const [filteredProposals, setFilteredProposals] = useState([]);
   const [selectedProposal, setSelectedProposal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showConfig, setShowConfig] = useState(false);
-  const [dashboardConfig, setDashboardConfig] = useState({
-    view: 'card',
-    showCancelled: false,
-    showRejected: false,
-    sortBy: 'date-desc',
-    emailNotifications: true,
-    desktopNotifications: false
-  });
+  const [dashboardConfig, setDashboardConfig] = useState(loadDashboardConfig());
 
   // Load data on mount
   useEffect(() => {
     loadProposals();
   }, []);
+
+  // Apply filters and sorting when proposals or config changes
+  useEffect(() => {
+    if (proposals.length > 0) {
+      const filtered = applyConfigFiltersAndSort(proposals, dashboardConfig);
+      setFilteredProposals(filtered);
+      console.log(`✅ Applied filters: ${filtered.length}/${proposals.length} proposals shown`);
+    }
+  }, [proposals, dashboardConfig]);
 
   async function loadProposals() {
     try {
@@ -91,6 +99,12 @@ export default function ProposalsIsland() {
     }
   }
 
+  function handleConfigChange(newConfig) {
+    setDashboardConfig(newConfig);
+    saveDashboardConfig(newConfig);
+    console.log('✅ Dashboard config updated');
+  }
+
   // Loading state
   if (loading) {
     return <LoadingState />;
@@ -118,9 +132,9 @@ export default function ProposalsIsland() {
         ⚙️
       </button>
 
-      {/* Proposal Selector Dropdown */}
+      {/* Proposal Selector Dropdown - Use filtered proposals */}
       <ProposalSelector
-        proposals={proposals}
+        proposals={filteredProposals}
         selectedProposalId={selectedProposal?.id}
         onSelect={handleProposalSelect}
       />
@@ -129,6 +143,7 @@ export default function ProposalsIsland() {
       {selectedProposal && (
         <ProposalCard
           proposal={selectedProposal}
+          currentUserId={currentUser?._id}
           onUpdate={loadProposals}  // Refresh after actions
         />
       )}
@@ -148,7 +163,7 @@ export default function ProposalsIsland() {
         isOpen={showConfig}
         onClose={() => setShowConfig(false)}
         config={dashboardConfig}
-        onConfigChange={setDashboardConfig}
+        onConfigChange={handleConfigChange}
       />
     </div>
   );

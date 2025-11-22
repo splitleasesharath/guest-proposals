@@ -1,6 +1,7 @@
 /**
  * CompareTermsModal Component
- * Displays side-by-side comparison of original proposal vs modified/counteroffer terms
+ * Displays side-by-side comparison of original proposal vs host counteroffer terms
+ * Works with actual database structure (hc_* fields for counteroffer)
  * Triggered when host modifies proposal or submits counteroffer
  */
 
@@ -8,7 +9,7 @@ import { useEffect } from 'react';
 import { formatPrice, formatDate } from '../../lib/supabase/dataTransformers.js';
 import '../../styles/modals.css';
 
-export default function CompareTermsModal({ isOpen, onClose, originalProposal, modifiedProposal }) {
+export default function CompareTermsModal({ isOpen, onClose, proposal, onAccept, onDecline }) {
   // Handle ESC key (but don't close - matching Bubble.io behavior for priority popups)
   useEffect(() => {
     function handleKeyDown(e) {
@@ -27,10 +28,16 @@ export default function CompareTermsModal({ isOpen, onClose, originalProposal, m
     };
   }, [isOpen]);
 
-  if (!isOpen || !originalProposal || !modifiedProposal) return null;
+  // Only show if counteroffer exists
+  if (!isOpen || !proposal || !proposal['counter offer happened']) {
+    return null;
+  }
 
   // Helper to determine if a field changed
   function hasChanged(originalValue, modifiedValue) {
+    // Handle null/undefined cases
+    if (originalValue == null && modifiedValue == null) return false;
+    if (originalValue == null || modifiedValue == null) return true;
     return originalValue !== modifiedValue;
   }
 
@@ -49,69 +56,108 @@ export default function CompareTermsModal({ isOpen, onClose, originalProposal, m
     return days.map(d => dayAbbr[d] || d).join(', ');
   }
 
-  // Comparison items
+  // Extract original and counteroffer terms from proposal
+  const originalTerms = {
+    daysSelected: proposal['Days Selected'],
+    nightsPerWeek: proposal['nights per week (num)'],
+    reservationWeeks: proposal['Reservation Span (Weeks)'],
+    checkInDay: proposal['check in day'],
+    checkOutDay: proposal['check out day'],
+    moveInStart: proposal['Move in range start'],
+    totalPrice: proposal['Total Price for Reservation (guest)'],
+    nightlyPrice: proposal['proposal nightly price'],
+    damageDeposit: proposal['damage deposit'],
+    cleaningFee: proposal['cleaning fee'],
+    houseRules: proposal['House Rules']
+  };
+
+  const counterofferTerms = {
+    daysSelected: proposal['hc days selected'],
+    nightsPerWeek: proposal['hc nights per week'],
+    reservationWeeks: proposal['hc reservation span (weeks)'],
+    checkInDay: proposal['hc check in day'],
+    checkOutDay: proposal['hc check out day'],
+    moveInStart: proposal['Move in range start'], // Counteroffer doesn't change move-in date
+    totalPrice: proposal['hc total price'],
+    nightlyPrice: proposal['hc nightly price'],
+    damageDeposit: proposal['hc damage deposit'],
+    cleaningFee: proposal['hc cleaning fee'],
+    houseRules: proposal['hc house rules']
+  };
+
+  // Build comparison items
   const comparisons = [
     {
       label: 'Total Price',
-      original: formatPrice(originalProposal.totalPrice),
-      modified: formatPrice(modifiedProposal.totalPrice),
-      changed: hasChanged(originalProposal.totalPrice, modifiedProposal.totalPrice),
+      original: formatPrice(originalTerms.totalPrice),
+      modified: formatPrice(counterofferTerms.totalPrice),
+      changed: hasChanged(originalTerms.totalPrice, counterofferTerms.totalPrice),
       isPriceField: true
     },
     {
       label: 'Nightly Rate',
-      original: formatPrice(originalProposal.nightlyPrice),
-      modified: formatPrice(modifiedProposal.nightlyPrice),
-      changed: hasChanged(originalProposal.nightlyPrice, modifiedProposal.nightlyPrice),
+      original: formatPrice(originalTerms.nightlyPrice),
+      modified: formatPrice(counterofferTerms.nightlyPrice),
+      changed: hasChanged(originalTerms.nightlyPrice, counterofferTerms.nightlyPrice),
       isPriceField: true
     },
     {
-      label: 'Check-in Date',
-      original: originalProposal.checkInDay,
-      modified: modifiedProposal.checkInDay,
-      changed: hasChanged(originalProposal.checkInDay, modifiedProposal.checkInDay)
+      label: 'Duration (Weeks)',
+      original: `${originalTerms.reservationWeeks || 0} Weeks`,
+      modified: `${counterofferTerms.reservationWeeks || 0} Weeks`,
+      changed: hasChanged(originalTerms.reservationWeeks, counterofferTerms.reservationWeeks)
     },
     {
-      label: 'Check-out Date',
-      original: originalProposal.checkOutDay,
-      modified: modifiedProposal.checkOutDay,
-      changed: hasChanged(originalProposal.checkOutDay, modifiedProposal.checkOutDay)
+      label: 'Nights per Week',
+      original: originalTerms.nightsPerWeek || 0,
+      modified: counterofferTerms.nightsPerWeek || 0,
+      changed: hasChanged(originalTerms.nightsPerWeek, counterofferTerms.nightsPerWeek)
     },
     {
-      label: 'Duration',
-      original: `${originalProposal.reservationWeeks} Weeks`,
-      modified: `${modifiedProposal.reservationWeeks} Weeks`,
-      changed: hasChanged(originalProposal.reservationWeeks, modifiedProposal.reservationWeeks)
+      label: 'Check-in Day',
+      original: originalTerms.checkInDay || 'Not set',
+      modified: counterofferTerms.checkInDay || originalTerms.checkInDay || 'Not set',
+      changed: hasChanged(originalTerms.checkInDay, counterofferTerms.checkInDay)
+    },
+    {
+      label: 'Check-out Day',
+      original: originalTerms.checkOutDay || 'Not set',
+      modified: counterofferTerms.checkOutDay || originalTerms.checkOutDay || 'Not set',
+      changed: hasChanged(originalTerms.checkOutDay, counterofferTerms.checkOutDay)
     },
     {
       label: 'Weekly Schedule',
-      original: formatDaysSelected(originalProposal.daysSelected),
-      modified: formatDaysSelected(modifiedProposal.daysSelected),
-      changed: JSON.stringify(originalProposal.daysSelected) !== JSON.stringify(modifiedProposal.daysSelected)
-    },
-    {
-      label: 'Move-in Date',
-      original: formatDate(originalProposal.moveInStart),
-      modified: formatDate(modifiedProposal.moveInStart),
-      changed: hasChanged(originalProposal.moveInStart, modifiedProposal.moveInStart)
+      original: formatDaysSelected(originalTerms.daysSelected),
+      modified: formatDaysSelected(counterofferTerms.daysSelected || originalTerms.daysSelected),
+      changed: JSON.stringify(originalTerms.daysSelected) !== JSON.stringify(counterofferTerms.daysSelected)
     },
     {
       label: 'Damage Deposit',
-      original: formatPrice(originalProposal.damageDeposit),
-      modified: formatPrice(modifiedProposal.damageDeposit),
-      changed: hasChanged(originalProposal.damageDeposit, modifiedProposal.damageDeposit),
+      original: formatPrice(originalTerms.damageDeposit),
+      modified: formatPrice(counterofferTerms.damageDeposit || originalTerms.damageDeposit),
+      changed: hasChanged(originalTerms.damageDeposit, counterofferTerms.damageDeposit),
       isPriceField: true
     }
   ];
 
   // Add cleaning fee if it exists
-  if (originalProposal.cleaningFee || modifiedProposal.cleaningFee) {
+  if (originalTerms.cleaningFee || counterofferTerms.cleaningFee) {
     comparisons.push({
       label: 'Cleaning Fee',
-      original: formatPrice(originalProposal.cleaningFee || 0),
-      modified: formatPrice(modifiedProposal.cleaningFee || 0),
-      changed: hasChanged(originalProposal.cleaningFee, modifiedProposal.cleaningFee),
+      original: formatPrice(originalTerms.cleaningFee || 0),
+      modified: formatPrice(counterofferTerms.cleaningFee || originalTerms.cleaningFee || 0),
+      changed: hasChanged(originalTerms.cleaningFee, counterofferTerms.cleaningFee),
       isPriceField: true
+    });
+  }
+
+  // Add house rules comparison if changed
+  if (JSON.stringify(originalTerms.houseRules) !== JSON.stringify(counterofferTerms.houseRules)) {
+    comparisons.push({
+      label: 'House Rules',
+      original: `${(originalTerms.houseRules || []).length} rules`,
+      modified: `${(counterofferTerms.houseRules || []).length} rules`,
+      changed: true
     });
   }
 
@@ -206,8 +252,11 @@ export default function CompareTermsModal({ isOpen, onClose, originalProposal, m
           <button
             className="btn-modal btn-modal-danger"
             onClick={() => {
-              // TODO: Implement decline counteroffer
-              console.log('Declining counteroffer');
+              if (onDecline) {
+                onDecline(proposal);
+              } else {
+                console.log('Declining counteroffer');
+              }
               onClose();
             }}
           >
@@ -216,12 +265,15 @@ export default function CompareTermsModal({ isOpen, onClose, originalProposal, m
           <button
             className="btn-modal btn-modal-primary"
             onClick={() => {
-              // TODO: Implement accept counteroffer
-              console.log('Accepting counteroffer');
+              if (onAccept) {
+                onAccept(proposal);
+              } else {
+                console.log('Accepting counteroffer');
+              }
               onClose();
             }}
           >
-            Accept Counteroffer
+            Accept Host's Terms
           </button>
         </div>
       </div>

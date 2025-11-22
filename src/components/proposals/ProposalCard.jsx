@@ -5,27 +5,23 @@
 
 import { useState } from 'react';
 import { formatPrice, formatDate } from '../../lib/supabase/dataTransformers.js';
+import { getStatusConfig, getStageFromStatus } from '../../lib/constants/proposalStatuses.js';
+import { getAllStagesFormatted } from '../../lib/constants/proposalStages.js';
+import { handleCancelProposal, canCancelProposal, getCancelButtonText } from '../../lib/workflows/cancelProposal.js';
+import { handleRequestVirtualMeeting, getVMButtonText, isVMButtonDisabled } from '../../lib/workflows/virtualMeetings.js';
+import {
+  navigateToListing,
+  navigateToMessaging,
+  navigateToRentalApplication,
+  navigateToDocumentReview,
+  navigateToLeaseDocuments
+} from '../../lib/workflows/navigation.js';
+import { getVirtualMeetingState } from '../../lib/supabase/virtualMeetingQueries.js';
 import MapsModal from './MapsModal.jsx';
 import HostProfileModal from './HostProfileModal.jsx';
 import CompareTermsModal from './CompareTermsModal.jsx';
-
-// Helper to get status display info
-function getStatusInfo(status) {
-  const statusMap = {
-    'Proposal Cancelled by Guest': { color: 'red', label: 'Cancelled by You' },
-    'Proposal Cancelled by Split Lease': { color: 'red', label: 'Proposal Cancelled' },
-    'Proposal Rejected by Host': { color: 'red', label: 'Rejected by Host' },
-    'Proposal or Counteroffer Accepted / Drafting Lease Documents': { color: 'green', label: 'Proposal Accepted! Drafting Lease' },
-    'Initial Payment Submitted / Lease activated': { color: 'green', label: 'Lease Activated' },
-    'Lease Documents Sent for Review': { color: 'blue', label: 'Review Lease Documents' },
-    'Host Counteroffer Submitted / Awaiting Guest Review': { color: 'yellow', label: 'Host Counteroffer - Your Review' },
-    'Host Review': { color: 'blue', label: 'Under Host Review' },
-    'Proposal Submitted by guest - Awaiting Rental Application': { color: 'blue', label: 'Submit Rental Application' },
-    'Pending': { color: 'gray', label: 'Pending' }
-  };
-
-  return statusMap[status] || { color: 'gray', label: status };
-}
+import CounterOfferBanner from './CounterOfferBanner.jsx';
+import RespondVirtualMeetingModal from './RespondVirtualMeetingModal.jsx';
 
 // Helper to render weekly schedule with circular badges
 function WeeklySchedule({ daysSelected }) {
@@ -48,42 +44,33 @@ function WeeklySchedule({ daysSelected }) {
 
 // Progress tracker component
 function ProgressTracker({ currentStage }) {
-  const stages = [
-    'Proposal Submitted',
-    'Rental App Submitted',
-    'Host Review',
-    'Review Documents',
-    'Lease Documents',
-    'Initial Payment'
-  ];
-
-  const currentIndex = currentStage ? parseInt(currentStage) - 1 : 0;
+  // Get all stages formatted with status (completed/current/pending)
+  const stages = getAllStagesFormatted(currentStage);
 
   return (
     <div className="progress-tracker">
-      {stages.map((stage, index) => {
-        const isCompleted = index < currentIndex;
-        const isCurrent = index === currentIndex;
-
-        return (
-          <div key={index} className={`progress-step ${isCompleted ? 'completed' : ''}`}>
-            <div className={`progress-circle ${isCompleted || isCurrent ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}>
-              {isCompleted ? '✓' : ''}
-            </div>
-            <div className="progress-label">{stage}</div>
+      {stages.map((stage) => (
+        <div key={stage.id} className={`progress-step ${stage.status}`}>
+          <div className={`progress-circle ${stage.isCompleted || stage.isCurrent ? 'active' : ''} ${stage.isCurrent ? 'current' : ''}`}>
+            <span className="stage-icon">{stage.isCompleted ? '✓' : stage.icon}</span>
           </div>
-        );
-      })}
+          <div className="progress-label" title={stage.description}>
+            {stage.shortName}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
 
-export default function ProposalCard({ proposal }) {
+export default function ProposalCard({ proposal, currentUserId, onUpdate }) {
   const [showMapsModal, setShowMapsModal] = useState(false);
   const [showHostProfileModal, setShowHostProfileModal] = useState(false);
-  const [showRequestMeetingModal, setShowRequestMeetingModal] = useState(false);
+  const [showRespondMeetingModal, setShowRespondMeetingModal] = useState(false);
   const [showCompareTermsModal, setShowCompareTermsModal] = useState(false);
   const [showHouseRules, setShowHouseRules] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   if (!proposal) {
     return (
@@ -93,11 +80,41 @@ export default function ProposalCard({ proposal }) {
     );
   }
 
-  const { listing, host } = proposal;
-  const statusInfo = getStatusInfo(proposal.status);
+  const { listing, host, virtualMeeting } = proposal;
+
+  // Get status configuration from centralized system
+  const statusInfo = getStatusConfig(proposal.status);
+
+  // Get current stage from status (if active)
+  const currentStage = getStageFromStatus(proposal.status);
+
+  // Get virtual meeting state
+  const vmState = virtualMeeting
+    ? getVirtualMeetingState(virtualMeeting, proposal, currentUserId)
+    : { state: 'no_meeting', showButton: true, buttonText: 'Request Virtual Meeting' };
+
+  // Clear messages after 5 seconds
+  if (error || successMessage) {
+    setTimeout(() => {
+      setError(null);
+      setSuccessMessage(null);
+    }, 5000);
+  }
 
   return (
     <div className="proposal-card">
+      {/* Success/Error Messages */}
+      {successMessage && (
+        <div className="alert alert-success">
+          {successMessage}
+        </div>
+      )}
+      {error && (
+        <div className="alert alert-error">
+          {error}
+        </div>
+      )}
+
       {/* Prominent Status Banner - Always show for non-pending proposals */}
       {!proposal.status.includes('Pending') && (
         <div className={`status-banner status-${statusInfo.color}`}>
@@ -107,6 +124,12 @@ export default function ProposalCard({ proposal }) {
           )}
         </div>
       )}
+
+      {/* Counteroffer Banner - Show when host has made changes */}
+      <CounterOfferBanner
+        proposal={proposal}
+        onCompareClick={() => setShowCompareTermsModal(true)}
+      />
 
       {/* Main Content: Two Column Layout */}
       <div className="proposal-content">
@@ -121,8 +144,18 @@ export default function ProposalCard({ proposal }) {
                 : listing?.hoodName || listing?.boroughName || ''}
             </p>
             <div className="listing-actions">
-              <button className="btn-view-listing">View Listing</button>
-              <button className="btn-view-map" onClick={() => setShowMapsModal(true)}>View Map</button>
+              <button
+                className="btn-view-listing"
+                onClick={() => navigateToListing(proposal)}
+              >
+                View Listing
+              </button>
+              <button
+                className="btn-view-map"
+                onClick={() => setShowMapsModal(true)}
+              >
+                View Map
+              </button>
             </div>
           </div>
 
@@ -153,8 +186,12 @@ export default function ProposalCard({ proposal }) {
                   <div className="house-rules-content">
                     <ul className="house-rules-list">
                       {listing.houseRules.map((rule, index) => (
-                        <li key={index} className="house-rule-item">
-                          <span className="rule-bullet">•</span>
+                        <li key={rule.id || index} className="house-rule-item">
+                          {rule.icon ? (
+                            <img src={rule.icon} alt="" className="rule-icon" />
+                          ) : (
+                            <span className="rule-bullet">•</span>
+                          )}
                           <span className="rule-text">{rule.name || rule}</span>
                         </li>
                       ))}
@@ -192,19 +229,36 @@ export default function ProposalCard({ proposal }) {
 
             {/* Action Buttons - Dynamic based on status */}
             <div className="proposal-actions">
-              {/* Request Virtual Meeting - Show for active proposals */}
-              {!proposal.status.includes('Cancelled') && !proposal.status.includes('Rejected') && (
+              {/* Virtual Meeting Button - Dynamic based on VM state */}
+              {vmState.showButton && (
                 <button
-                  className="btn-request-meeting"
-                  onClick={() => setShowRequestMeetingModal(true)}
+                  className={`btn-request-meeting btn-${vmState.buttonStyle || 'primary'}`}
+                  onClick={() => {
+                    handleRequestVirtualMeeting(
+                      proposal,
+                      currentUserId,
+                      (result) => {
+                        setSuccessMessage(result.message);
+                        if (onUpdate) onUpdate();
+                      },
+                      (err) => setError(err),
+                      () => setShowRespondMeetingModal(true)
+                    );
+                  }}
+                  disabled={isVMButtonDisabled(virtualMeeting, currentUserId)}
                 >
-                  Request Virtual Meeting
+                  {vmState.buttonText}
                 </button>
               )}
 
               {/* Status-based Action Buttons */}
               {proposal.status === 'Proposal Submitted by guest - Awaiting Rental Application' && (
-                <button className="btn-primary-action">Submit Rental Application</button>
+                <button
+                  className="btn-primary-action"
+                  onClick={() => navigateToRentalApplication(proposal._id)}
+                >
+                  Submit Rental Application
+                </button>
               )}
 
               {proposal.status === 'Host Counteroffer Submitted / Awaiting Guest Review' && (
@@ -217,20 +271,41 @@ export default function ProposalCard({ proposal }) {
               )}
 
               {proposal.status === 'Lease Documents Sent for Review' && (
-                <button className="btn-primary-action btn-review-docs">
+                <button
+                  className="btn-primary-action btn-review-docs"
+                  onClick={() => navigateToLeaseDocuments(proposal._id)}
+                >
                   Review Lease Documents
                 </button>
               )}
 
               {proposal.status === 'Proposal or Counteroffer Accepted / Drafting Lease Documents' && (
-                <button className="btn-primary-action btn-see-details">
+                <button
+                  className="btn-primary-action btn-see-details"
+                  onClick={() => navigateToDocumentReview(proposal._id)}
+                >
                   See Details
                 </button>
               )}
 
               {/* Cancel/Delete Proposal */}
-              {!proposal.status.includes('Cancelled') && !proposal.status.includes('Rejected') && (
-                <button className="btn-delete-proposal">Cancel Proposal</button>
+              {canCancelProposal(proposal) && (
+                <button
+                  className="btn-delete-proposal"
+                  onClick={() => {
+                    handleCancelProposal(
+                      proposal,
+                      (result) => {
+                        setSuccessMessage(result.message);
+                        if (onUpdate) onUpdate();
+                      },
+                      (err) => setError(err),
+                      { showReasonPrompt: true }
+                    );
+                  }}
+                >
+                  {getCancelButtonText(proposal)}
+                </button>
               )}
             </div>
           </div>
@@ -251,8 +326,18 @@ export default function ProposalCard({ proposal }) {
                 <img src={host.profilePhoto} alt={host.fullName} className="host-avatar" />
               )}
               <p className="host-name-label">{host?.firstName || host?.fullName}</p>
-              <button className="btn-host-profile" onClick={() => setShowHostProfileModal(true)}>Host Profile</button>
-              <button className="btn-send-message">Send a Message</button>
+              <button
+                className="btn-host-profile"
+                onClick={() => setShowHostProfileModal(true)}
+              >
+                Host Profile
+              </button>
+              <button
+                className="btn-send-message"
+                onClick={() => navigateToMessaging(host?._id, proposal._id)}
+              >
+                Send a Message
+              </button>
             </div>
           </div>
         </div>
@@ -260,7 +345,7 @@ export default function ProposalCard({ proposal }) {
 
       {/* Progress Tracker - Always show below the main content */}
       <div className="progress-tracker-container">
-        <ProgressTracker currentStage={proposal.proposalStage} />
+        <ProgressTracker currentStage={currentStage} />
       </div>
 
       {/* Modals */}
@@ -277,8 +362,68 @@ export default function ProposalCard({ proposal }) {
       <CompareTermsModal
         isOpen={showCompareTermsModal}
         onClose={() => setShowCompareTermsModal(false)}
-        originalProposal={proposal.originalTerms || proposal}
-        modifiedProposal={proposal.counterofferTerms || proposal}
+        proposal={proposal}
+        onAccept={(prop) => {
+          // Accept counteroffer - update proposal status
+          import('../../lib/workflows/counterofferActions.js')
+            .then(({ acceptCounteroffer }) => acceptCounteroffer(prop._id))
+            .then(() => {
+              setSuccessMessage('Counteroffer accepted successfully!');
+              setShowCompareTermsModal(false);
+              if (onUpdate) onUpdate();
+            })
+            .catch((err) => setError(err.message || 'Failed to accept counteroffer'));
+        }}
+        onDecline={(prop) => {
+          // Decline counteroffer - same as cancel proposal
+          handleCancelProposal(
+            prop,
+            (result) => {
+              setSuccessMessage('Counteroffer declined');
+              setShowCompareTermsModal(false);
+              if (onUpdate) onUpdate();
+            },
+            (err) => setError(err),
+            {
+              customMessage: 'Are you sure you want to decline this counteroffer?',
+              showReasonPrompt: true
+            }
+          );
+        }}
+      />
+      <RespondVirtualMeetingModal
+        isOpen={showRespondMeetingModal}
+        onClose={() => setShowRespondMeetingModal(false)}
+        virtualMeeting={virtualMeeting}
+        onRespond={(vmId, bookedDate) => {
+          import('../../lib/workflows/virtualMeetings.js')
+            .then(({ handleRespondWithDate }) =>
+              handleRespondWithDate(
+                vmId,
+                bookedDate,
+                (result) => {
+                  setSuccessMessage(result.message);
+                  setShowRespondMeetingModal(false);
+                  if (onUpdate) onUpdate();
+                },
+                (err) => setError(err)
+              )
+            );
+        }}
+        onDecline={(vmId) => {
+          import('../../lib/workflows/virtualMeetings.js')
+            .then(({ handleDeclineVirtualMeeting }) =>
+              handleDeclineVirtualMeeting(
+                vmId,
+                (result) => {
+                  setSuccessMessage(result.message);
+                  setShowRespondMeetingModal(false);
+                  if (onUpdate) onUpdate();
+                },
+                (err) => setError(err)
+              )
+            );
+        }}
       />
     </div>
   );

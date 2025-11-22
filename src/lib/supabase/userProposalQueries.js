@@ -13,6 +13,8 @@
 
 import { supabase } from './supabase.js';
 import { getUserIdFromPath, getProposalIdFromQuery } from '../utils/urlParser.js';
+import { resolveProposalHouseRules } from './houseRulesQueries.js';
+import { fetchVirtualMeetingsByProposalIds, createVirtualMeetingLookupMap } from './virtualMeetingQueries.js';
 
 /**
  * STEP 1: Fetch user data with Proposals List
@@ -314,7 +316,16 @@ export async function fetchProposalsByIds(proposalIds) {
     }
   }
 
-  // Step 6: Create lookup maps for efficient joining
+  // Step 6: Fetch virtual meetings for all proposals
+  console.log(`📅 Fetching virtual meetings for ${validProposals.length} proposals`);
+
+  const proposalIdsForVM = validProposals.map(p => p._id).filter(Boolean);
+  const virtualMeetings = await fetchVirtualMeetingsByProposalIds(proposalIdsForVM);
+  const vmMap = createVirtualMeetingLookupMap(virtualMeetings);
+
+  console.log(`✅ Fetched ${virtualMeetings.length} virtual meetings`);
+
+  // Step 7: Create lookup maps for efficient joining
   const listingMap = new Map((listings || []).map(l => [l._id, l]));
   // Key hosts by their Account - Host / Landlord field (not _id) for proper joining
   const hostMap = new Map(hosts.map(h => [h['Account - Host / Landlord'], h]));
@@ -326,31 +337,48 @@ export async function fetchProposalsByIds(proposalIds) {
   // Key featured photos by their Listing ID
   const featuredPhotoMap = new Map((featuredPhotos || []).map(p => [p.Listing, p.Photo]));
 
-  // Step 7: Manually join the data
-  const enrichedProposals = validProposals.map(proposal => {
-    const listing = listingMap.get(proposal.Listing);
-    // Lookup host by Host Account ID from listing
-    const host = listing ? hostMap.get(listing['Host / Landlord']) : null;
-    // Lookup guest by proposal's Guest field
-    const guest = guestMap.get(proposal.Guest);
-    // Lookup borough and hood names
-    const boroughName = listing ? boroughMap.get(listing['Location - Borough']) : null;
-    const hoodName = listing ? hoodMap.get(listing['Location - Hood']) : null;
-    // Lookup featured photo URL
-    const featuredPhotoUrl = listing ? featuredPhotoMap.get(listing._id) : null;
+  // Step 8: Manually join the data and resolve house rules
+  console.log('🏠 Resolving house rules for all proposals...');
 
-    return {
-      ...proposal,
-      listing: listing ? {
-        ...listing,
-        host,
-        boroughName,
-        hoodName,
-        featuredPhotoUrl
-      } : null,
-      guest: guest || null
-    };
-  });
+  const enrichedProposals = await Promise.all(
+    validProposals.map(async (proposal) => {
+      const listing = listingMap.get(proposal.Listing);
+      // Lookup host by Host Account ID from listing
+      const host = listing ? hostMap.get(listing['Host / Landlord']) : null;
+      // Lookup guest by proposal's Guest field
+      const guest = guestMap.get(proposal.Guest);
+      // Lookup borough and hood names
+      const boroughName = listing ? boroughMap.get(listing['Location - Borough']) : null;
+      const hoodName = listing ? hoodMap.get(listing['Location - Hood']) : null;
+      // Lookup featured photo URL
+      const featuredPhotoUrl = listing ? featuredPhotoMap.get(listing._id) : null;
+      // Lookup virtual meeting
+      const virtualMeeting = vmMap.get(proposal._id) || null;
+
+      // Resolve house rules for this proposal
+      // This will prioritize: counteroffer rules > proposal rules > listing rules
+      const proposalWithListing = {
+        ...proposal,
+        listing
+      };
+      const houseRules = await resolveProposalHouseRules(proposalWithListing);
+
+      return {
+        ...proposal,
+        listing: listing ? {
+          ...listing,
+          host,
+          boroughName,
+          hoodName,
+          featuredPhotoUrl,
+          houseRules // Add resolved house rules to listing object
+        } : null,
+        guest: guest || null,
+        virtualMeeting, // Add virtual meeting data
+        houseRules // Also add to top level for easy access
+      };
+    })
+  );
 
   console.log(`✅ Successfully enriched ${enrichedProposals.length} proposals with listing and host data`);
   return enrichedProposals;
