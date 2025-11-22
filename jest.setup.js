@@ -16,6 +16,9 @@ const localStorageMock = {
 
 global.localStorage = localStorageMock;
 
+// Note: window.location and window.history are difficult to mock in jsdom
+// Navigation functions should be tested with E2E tests (Playwright) instead
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -31,6 +34,17 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// Mock navigator.clipboard
+Object.assign(navigator, {
+  clipboard: {
+    writeText: jest.fn().mockResolvedValue(),
+    readText: jest.fn().mockResolvedValue(''),
+  },
+});
+
+// Mock document.execCommand
+document.execCommand = jest.fn(() => true);
+
 // Suppress console errors in tests (optional)
 // global.console.error = jest.fn();
 
@@ -40,4 +54,5 @@ beforeEach(() => {
   localStorageMock.setItem.mockClear();
   localStorageMock.removeItem.mockClear();
   localStorageMock.clear.mockClear();
+
 });
