@@ -6,19 +6,16 @@
 
 import { useState } from 'react';
 import RespondVirtualMeetingModal from './RespondVirtualMeetingModal.jsx';
+import RequestVirtualMeetingModal from './RequestVirtualMeetingModal.jsx';
 import '../../styles/virtual-meetings.css';
 
 export default function VirtualMeetingsSection({ proposal }) {
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [showRespondModal, setShowRespondModal] = useState(false);
+  const [showRequestModal, setShowRequestModal] = useState(false);
 
   // Get virtual meetings from proposal
   const virtualMeetings = proposal?.virtualMeetings || [];
-
-  // If no meetings, don't render section
-  if (virtualMeetings.length === 0) {
-    return null;
-  }
 
   function handleRespondClick(meeting) {
     setSelectedMeeting(meeting);
@@ -28,6 +25,14 @@ export default function VirtualMeetingsSection({ proposal }) {
   function handleModalClose() {
     setShowRespondModal(false);
     setSelectedMeeting(null);
+  }
+
+  function handleRequestClick() {
+    setShowRequestModal(true);
+  }
+
+  function handleRequestModalClose() {
+    setShowRequestModal(false);
   }
 
   function getStatusBadgeClass(status) {
@@ -78,10 +83,17 @@ export default function VirtualMeetingsSection({ proposal }) {
         <p className="vm-section-subtitle">
           Schedule and manage virtual meetings with your host
         </p>
+        <button
+          className="btn-request-vm"
+          onClick={handleRequestClick}
+        >
+          Request Virtual Meeting
+        </button>
       </div>
 
-      <div className="vm-cards-container">
-        {virtualMeetings.map((meeting) => (
+      {virtualMeetings.length > 0 && (
+        <div className="vm-cards-container">
+          {virtualMeetings.map((meeting) => (
           <div key={meeting.id} className="vm-card">
             {/* Host Info */}
             <div className="vm-card-host">
@@ -156,7 +168,8 @@ export default function VirtualMeetingsSection({ proposal }) {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* Respond Modal */}
       {selectedMeeting && (
@@ -167,6 +180,13 @@ export default function VirtualMeetingsSection({ proposal }) {
           proposal={proposal}
         />
       )}
+
+      {/* Request Virtual Meeting Modal */}
+      <RequestVirtualMeetingModal
+        isOpen={showRequestModal}
+        onClose={handleRequestModalClose}
+        proposal={proposal}
+      />
     </div>
   );
 }

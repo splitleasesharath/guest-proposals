@@ -1,0 +1,380 @@
+/**
+ * Request Virtual Meeting Modal Styles
+ * Implements glass morphism effect with calendar and time slot selection
+ */
+
+/* Modal Overlay */
+.rvm-modal-overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 100px;
+  bottom: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Modal Content */
+.rvm-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  background: transparent;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Glass Effect Container */
+.rvm-glass-effect {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 24px;
+}
+
+/* Header */
+.rvm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.rvm-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #252525;
+  margin: 0;
+}
+
+.rvm-close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.rvm-close-btn:hover {
+  color: #252525;
+}
+
+/* Calendar Container */
+.rvm-calendar-container {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+/* Month Selector */
+.rvm-month-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.rvm-month-dropdown {
+  flex: 1;
+  min-width: 100px;
+  max-width: 197px;
+  height: 35px;
+  border: none;
+  background-color: transparent;
+  color: #252525;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 400;
+  padding: 0 30px 0 5px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23252525' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
+}
+
+.rvm-month-dropdown:focus {
+  outline: 2px solid #5c20b6;
+  outline-offset: 2px;
+}
+
+.rvm-nav-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: #252525;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: opacity 0.2s;
+}
+
+.rvm-nav-btn:hover {
+  opacity: 0.7;
+}
+
+.rvm-nav-btn:active {
+  opacity: 0.5;
+}
+
+/* Day Headers */
+.rvm-day-headers {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.rvm-day-header {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  padding: 8px 4px;
+}
+
+/* Calendar Grid */
+.rvm-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.rvm-day-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #252525;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.rvm-day-cell:hover:not(.rvm-day-past):not(.rvm-day-other-month) {
+  background: #f5f5f5;
+  border-color: #5c20b6;
+}
+
+.rvm-day-other-month {
+  color: #ddd;
+  cursor: default;
+}
+
+.rvm-day-past {
+  color: #ddd;
+  cursor: default;
+  background: #fafafa;
+}
+
+.rvm-day-selected {
+  background: rgba(92, 32, 182, 0.1);
+  border-color: #5c20b6;
+  font-weight: bold;
+  color: #5c20b6;
+}
+
+.rvm-day-today {
+  font-weight: bold;
+}
+
+.rvm-day-today:not(.rvm-day-selected) {
+  background: rgba(92, 32, 182, 0.05);
+}
+
+/* Time Slots Container */
+.rvm-time-slots-container {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.rvm-time-slots-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.rvm-time-slots-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #252525;
+  margin: 0;
+}
+
+.rvm-clear-btn {
+  background: none;
+  border: none;
+  color: #5c20b6;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  text-decoration: underline;
+  transition: opacity 0.2s;
+}
+
+.rvm-clear-btn:hover {
+  opacity: 0.7;
+}
+
+/* Time Slots Grid */
+.rvm-time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.rvm-time-slot {
+  padding: 12px 8px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #252525;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.rvm-time-slot:hover {
+  background: #f5f5f5;
+  border-color: #5c20b6;
+}
+
+.rvm-time-slot-selected {
+  background: #5c20b6;
+  border-color: #5c20b6;
+  color: #fff;
+  font-weight: 500;
+}
+
+.rvm-time-slot-selected:hover {
+  background: #4a1a94;
+  border-color: #4a1a94;
+}
+
+/* Submit Button */
+.rvm-submit-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: #686868;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: default;
+  transition: background 0.2s;
+}
+
+.rvm-submit-btn:not(:disabled) {
+  background: #5c20b6;
+  cursor: pointer;
+}
+
+.rvm-submit-btn:not(:disabled):hover {
+  background: #4a1a94;
+}
+
+.rvm-submit-btn:not(:disabled):active {
+  background: #3a1472;
+}
+
+.rvm-submit-btn:disabled {
+  opacity: 0.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .rvm-modal-overlay {
+    top: 0;
+    padding: 0;
+  }
+
+  .rvm-modal-content {
+    max-width: 100%;
+    border-radius: 0;
+    min-height: 100vh;
+  }
+
+  .rvm-glass-effect {
+    border-radius: 0;
+    min-height: 100vh;
+  }
+
+  .rvm-time-slots-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .rvm-title {
+    font-size: 20px;
+  }
+
+  .rvm-month-dropdown {
+    font-size: 15px;
+  }
+
+  .rvm-day-cell {
+    font-size: 13px;
+  }
+
+  .rvm-time-slot {
+    padding: 10px 6px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rvm-time-slots-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rvm-calendar-grid {
+    gap: 2px;
+  }
+
+  .rvm-day-cell {
+    font-size: 12px;
+  }
+
+  .rvm-day-header {
+    font-size: 12px;
+    padding: 6px 2px;
+  }
+}
