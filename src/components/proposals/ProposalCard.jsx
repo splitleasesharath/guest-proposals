@@ -346,6 +346,10 @@ export default function ProposalCard({ proposal, currentUserId, onUpdate }) {
       {/* Progress Tracker - Always show below the main content */}
       <div className="progress-tracker-container">
         <ProgressTracker currentStage={currentStage} />
+        {/* Proposal metadata */}
+        <div className="proposal-metadata">
+          Proposal unique id: {proposal._id} - Created on: {proposal.createdDate ? formatDate(proposal.createdDate) : 'N/A'}
+        </div>
       </div>
 
       {/* Modals */}

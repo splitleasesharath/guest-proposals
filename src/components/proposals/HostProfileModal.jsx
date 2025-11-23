@@ -40,123 +40,128 @@ export default function HostProfileModal({ isOpen, onClose, host }) {
 
   const isVerified = host.isIdentityVerified || host.identityVerified || false;
 
+  // Mock featured listings data
+  const featuredListings = host.featuredListings || [
+    {
+      id: 1,
+      name: 'Restored Little Italy Loft with Gym, Pools, Doorman & Private Outdoor Space.',
+      location: 'Manhattan, Little Italy',
+      image: 'https://50bf0464e4735aabad1cc8848a0e8b8a.cdn.bubble.io/cdn-cgi/image/w=96,h=,f=auto,dpr=1,fit=contain,q=75/f1758070991261x467574734164542400/ap1.jpg'
+    },
+    {
+      id: 2,
+      name: 'Cozy 2BR Retreat with Kitchenette, 2 Baths, Gym & WiFi in Milford',
+      location: '',
+      image: 'https://50bf0464e4735aabad1cc8848a0e8b8a.cdn.bubble.io/cdn-cgi/image/w=96,h=,f=auto,dpr=1,fit=contain,q=75/f1754582536637x919649391378762800/Bedroom%202.jpeg'
+    },
+    {
+      id: 3,
+      name: 'Modern Private Room in Clinton, 2BR 2BA, Full Kitchen, WiFi, AC',
+      location: 'Manhattan, Clinton',
+      image: ''
+    }
+  ];
+
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal-content modal-host-profile"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="modal-header">
-          <h2 className="modal-title">Host Profile</h2>
-          <button
-            className="modal-close-btn"
-            onClick={onClose}
-            aria-label="Close profile"
-          >
-            ✕
-          </button>
-        </div>
+    <div className="host-profile-overlay">
+      <div className="host-profile-popup">
+        {/* Close button - top right */}
+        <button
+          className="host-profile-close-icon"
+          onClick={onClose}
+          aria-label="Close"
+        >
+          <svg viewBox="0 0 32 32" style={{ width: '100%', height: '100%' }}>
+            <use href="/static/icon_libraries/fontawesome-4.7.0.svg#fa-close"></use>
+          </svg>
+        </button>
 
-        {/* Body */}
-        <div className="modal-body">
-          <div className="host-profile-content">
-            {/* Host Header with Photo and Name */}
-            <div className="host-profile-header">
-              {host.profilePhoto && (
-                <img
-                  src={host.profilePhoto}
-                  alt={host.fullName || host.firstName}
-                  className="host-profile-avatar-large"
-                />
-              )}
-              <div className="host-profile-info">
-                <h3 className="host-profile-name">
-                  {host.fullName || `${host.firstName || ''} ${host.lastName || ''}`.trim() || 'Host'}
-                </h3>
-                {isVerified && (
-                  <div className="host-profile-verified">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                    </svg>
-                    Identity Verified
-                  </div>
+        <div className="host-profile-container">
+          {/* Top Section: Host Info and Verifications */}
+          <div className="host-profile-top">
+            {/* Left: Host Photo and Name */}
+            <div className="host-profile-left">
+              <div className="host-profile-photo-wrapper">
+                {host.profilePhoto && (
+                  <img
+                    src={host.profilePhoto}
+                    alt={host.fullName || host.firstName}
+                    className="host-profile-photo"
+                  />
                 )}
-              </div>
-            </div>
-
-            {/* Host Statistics */}
-            <div className="host-profile-section">
-              <h3>Host Statistics</h3>
-              <div className="host-profile-stats">
-                <div className="host-stat">
-                  <p className="host-stat-value">★ {hostStats.rating}</p>
-                  <p className="host-stat-label">Rating</p>
-                </div>
-                <div className="host-stat">
-                  <p className="host-stat-value">{hostStats.reviews}</p>
-                  <p className="host-stat-label">Reviews</p>
-                </div>
-                <div className="host-stat">
-                  <p className="host-stat-value">{hostStats.responseTime}</p>
-                  <p className="host-stat-label">Response Time</p>
+                <div className="host-profile-name-label">
+                  Host: {host.firstName || host.fullName || 'Host'} {host.lastName?.[0] || 'S'}
                 </div>
               </div>
             </div>
 
-            {/* Hosting Information */}
-            <div className="host-profile-section">
-              <h3>Hosting Information</h3>
-              <div className="host-profile-stats">
-                <div className="host-stat">
-                  <p className="host-stat-value">{hostStats.listingsCount}</p>
-                  <p className="host-stat-label">Active Listings</p>
-                </div>
-                <div className="host-stat">
-                  <p className="host-stat-value">{hostStats.yearsHosting}</p>
-                  <p className="host-stat-label">Years Hosting</p>
-                </div>
-                <div className="host-stat">
-                  <p className="host-stat-value">{hostStats.responseRate}</p>
-                  <p className="host-stat-label">Response Rate</p>
-                </div>
+            {/* Right: Verification Status */}
+            <div className="host-profile-verifications">
+              <div className="verification-item">
+                <img src="https://50bf0464e4735aabad1cc8848a0e8b8a.cdn.bubble.io/f1745962569232x297596559081963600/linkedinsmartphone-2-svgrepo-com%201.svg" alt="LinkedIn" className="verification-icon" />
+                <span className="verification-label">Linkedin</span>
+                <span className="verification-status unverified">Unverified</span>
+              </div>
+              <div className="verification-item">
+                <img src="https://50bf0464e4735aabad1cc8848a0e8b8a.cdn.bubble.io/f1745967504304x260999828850027260/smartphone-2-svgrepo-com%204.svg" alt="Phone" className="verification-icon" />
+                <span className="verification-label">Number</span>
+                <span className="verification-status verified">Verified</span>
+              </div>
+              <div className="verification-item">
+                <img src="https://50bf0464e4735aabad1cc8848a0e8b8a.cdn.bubble.io/f1745960229416x768160520933857200/message-letter.svg" alt="Email" className="verification-icon" />
+                <span className="verification-label">Email</span>
+                <span className="verification-status unverified">Unverified</span>
+              </div>
+              <div className="verification-item">
+                <img src="https://50bf0464e4735aabad1cc8848a0e8b8a.cdn.bubble.io/f1745962597324x408000072653366140/user-id-svgrepo-com%201.svg" alt="ID" className="verification-icon" />
+                <span className="verification-label">Identity</span>
+                <span className="verification-status verified">Verified</span>
               </div>
             </div>
 
-            {/* About Section */}
-            {host.bio && (
-              <div className="host-profile-section">
-                <h3>About {host.firstName || 'Host'}</h3>
-                <p className="host-about-text">{host.bio}</p>
-              </div>
-            )}
-
-            {/* Languages */}
-            {host.languages && host.languages.length > 0 && (
-              <div className="host-profile-section">
-                <h3>Languages</h3>
-                <p className="host-about-text">
-                  {Array.isArray(host.languages)
-                    ? host.languages.join(', ')
-                    : host.languages}
-                </p>
-              </div>
-            )}
-
-            {/* Location */}
-            {host.location && (
-              <div className="host-profile-section">
-                <h3>Location</h3>
-                <p className="host-about-text">{host.location}</p>
-              </div>
-            )}
+            {/* Biography Section */}
+            <div className="host-profile-bio-section">
+              <h3 className="bio-heading">Biography</h3>
+              <p className="bio-text">
+                {host.bio || "Winning in NYC! I'm Charlie Sheen, your ultimate tiger-blooded landlord with a flair for the wild and luxurious. Whether you're a rockstar or just want to live like one, I've got the loft that'll make your life #Winning every day. Just remember, here we party like it's the '90s, but with Wi-Fi"}
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Footer with Action Button */}
-        <div className="modal-footer">
-          <button className="btn-modal btn-modal-primary">
-            Send a Message
+          {/* Featured Listings Section */}
+          <div className="host-featured-listings">
+            <h3 className="featured-heading">Featured Listings from {host.firstName || 'Charlie'}</h3>
+            <div className="featured-listings-grid">
+              {featuredListings.map((listing) => (
+                <div key={listing.id} className="featured-listing-card">
+                  <div className="featured-listing-content">
+                    {listing.image && (
+                      <img
+                        src={listing.image}
+                        alt={listing.name}
+                        className="featured-listing-image"
+                      />
+                    )}
+                    <div className="featured-listing-info">
+                      <div className="featured-listing-name">{listing.name}</div>
+                      {listing.location && (
+                        <div className="featured-listing-location">
+                          <svg viewBox="0 0 32 32" className="location-icon">
+                            <use href="/static/icon_libraries/fontawesome-4.7.0.svg#fa-map-marker"></use>
+                          </svg>
+                          <span>{listing.location}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Close Button */}
+          <button className="host-profile-close-btn" onClick={onClose}>
+            Close
           </button>
         </div>
       </div>
