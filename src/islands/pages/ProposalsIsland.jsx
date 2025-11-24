@@ -15,16 +15,10 @@ import { useState, useEffect } from 'react';
 import { fetchUserProposalsFromUrl } from '../../lib/supabase/userProposalQueries.js';
 import { updateUrlWithProposal } from '../../lib/utils/urlParser.js';
 import { transformProposalData } from '../../lib/supabase/dataTransformers.js';
-import {
-  loadDashboardConfig,
-  saveDashboardConfig,
-  applyConfigFiltersAndSort
-} from '../../lib/utils/dashboardConfig.js';
 import ProposalSelector from '../../components/proposals/ProposalSelector.jsx';
 import ProposalCard from '../../components/proposals/ProposalCard.jsx';
 import VirtualMeetingsSection from '../../components/proposals/VirtualMeetingsSection.jsx';
 import FloatingProposalSummary from '../../components/proposals/FloatingProposalSummary.jsx';
-import DashboardConfigPanel from '../../components/proposals/DashboardConfigPanel.jsx';
 import LoadingState from '../../components/proposals/LoadingState.jsx';
 import ErrorState from '../../components/proposals/ErrorState.jsx';
 import EmptyState from '../../components/proposals/EmptyState.jsx';
@@ -32,26 +26,14 @@ import EmptyState from '../../components/proposals/EmptyState.jsx';
 export default function ProposalsIsland() {
   const [currentUser, setCurrentUser] = useState(null);
   const [proposals, setProposals] = useState([]);
-  const [filteredProposals, setFilteredProposals] = useState([]);
   const [selectedProposal, setSelectedProposal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showConfig, setShowConfig] = useState(false);
-  const [dashboardConfig, setDashboardConfig] = useState(loadDashboardConfig());
 
   // Load data on mount
   useEffect(() => {
     loadProposals();
   }, []);
-
-  // Apply filters and sorting when proposals or config changes
-  useEffect(() => {
-    if (proposals.length > 0) {
-      const filtered = applyConfigFiltersAndSort(proposals, dashboardConfig);
-      setFilteredProposals(filtered);
-      console.log(`✅ Applied filters: ${filtered.length}/${proposals.length} proposals shown`);
-    }
-  }, [proposals, dashboardConfig]);
 
   async function loadProposals() {
     try {
@@ -99,11 +81,6 @@ export default function ProposalsIsland() {
     }
   }
 
-  function handleConfigChange(newConfig) {
-    setDashboardConfig(newConfig);
-    saveDashboardConfig(newConfig);
-    console.log('✅ Dashboard config updated');
-  }
 
   // Loading state
   if (loading) {
@@ -123,18 +100,9 @@ export default function ProposalsIsland() {
   // Main view
   return (
     <div className="proposals-page">
-      {/* Settings Button */}
-      <button
-        className="dashboard-settings-btn"
-        onClick={() => setShowConfig(true)}
-        aria-label="Dashboard settings"
-      >
-        ⚙️
-      </button>
-
-      {/* Proposal Selector Dropdown - Use filtered proposals */}
+      {/* Proposal Selector Dropdown */}
       <ProposalSelector
-        proposals={filteredProposals}
+        proposals={proposals}
         selectedProposalId={selectedProposal?.id}
         onSelect={handleProposalSelect}
       />
@@ -157,14 +125,6 @@ export default function ProposalsIsland() {
       {selectedProposal && (
         <FloatingProposalSummary proposal={selectedProposal} />
       )}
-
-      {/* Config Panel */}
-      <DashboardConfigPanel
-        isOpen={showConfig}
-        onClose={() => setShowConfig(false)}
-        config={dashboardConfig}
-        onConfigChange={handleConfigChange}
-      />
     </div>
   );
 }
