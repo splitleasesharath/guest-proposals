@@ -135,7 +135,7 @@ export async function cancelProposal(proposalId, reason = null) {
  * @param {Object} proposal - Full proposal object
  * @param {Function} onSuccess - Callback on successful cancellation
  * @param {Function} onError - Callback on error
- * @param {Object} options - Additional options (showReasonPrompt, customMessage)
+ * @param {Object} options - Additional options (showReasonPrompt, customMessage, skipConfirmation)
  */
 export async function handleCancelProposal(proposal, onSuccess, onError, options = {}) {
   try {
@@ -149,8 +149,8 @@ export async function handleCancelProposal(proposal, onSuccess, onError, options
       return;
     }
 
-    // Show confirmation dialog
-    if (condition.requiresConfirmation) {
+    // Show confirmation dialog (only if not skipped - modal handles confirmation)
+    if (condition.requiresConfirmation && !options.skipConfirmation) {
       const message = options.customMessage || condition.confirmationMessage;
       const confirmed = window.confirm(message);
 

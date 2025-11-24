@@ -23,6 +23,7 @@ import CompareTermsModal from './CompareTermsModal.jsx';
 import CounterOfferBanner from './CounterOfferBanner.jsx';
 import RespondVirtualMeetingModal from './RespondVirtualMeetingModal.jsx';
 import RequestVirtualMeetingModal from './RequestVirtualMeetingModal.jsx';
+import CancelProposalModal from './CancelProposalModal.jsx';
 
 // Helper to render weekly schedule with circular badges
 function WeeklySchedule({ daysSelected }) {
@@ -70,6 +71,7 @@ export default function ProposalCard({ proposal, currentUserId, onUpdate }) {
   const [showRequestMeetingModal, setShowRequestMeetingModal] = useState(false);
   const [showRespondMeetingModal, setShowRespondMeetingModal] = useState(false);
   const [showCompareTermsModal, setShowCompareTermsModal] = useState(false);
+  const [showCancelProposalModal, setShowCancelProposalModal] = useState(false);
   const [showHouseRules, setShowHouseRules] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -301,17 +303,7 @@ export default function ProposalCard({ proposal, currentUserId, onUpdate }) {
               {canCancelProposal(proposal) && (
                 <button
                   className="btn-delete-proposal"
-                  onClick={() => {
-                    handleCancelProposal(
-                      proposal,
-                      (result) => {
-                        setSuccessMessage(result.message);
-                        if (onUpdate) onUpdate();
-                      },
-                      (err) => setError(err),
-                      { showReasonPrompt: true }
-                    );
-                  }}
+                  onClick={() => setShowCancelProposalModal(true)}
                 >
                   {getCancelButtonText(proposal)}
                 </button>
@@ -441,6 +433,30 @@ export default function ProposalCard({ proposal, currentUserId, onUpdate }) {
                 (err) => setError(err)
               )
             );
+        }}
+      />
+      <CancelProposalModal
+        isOpen={showCancelProposalModal}
+        onClose={() => setShowCancelProposalModal(false)}
+        proposal={proposal}
+        onConfirm={() => {
+          // Call the workflow to cancel the proposal
+          handleCancelProposal(
+            proposal,
+            (result) => {
+              setSuccessMessage(result.message);
+              setShowCancelProposalModal(false);
+              if (onUpdate) onUpdate();
+            },
+            (err) => {
+              setError(err);
+              setShowCancelProposalModal(false);
+            },
+            {
+              showReasonPrompt: false, // Don't show additional prompt since modal handles confirmation
+              skipConfirmation: true // Skip window.confirm since modal already confirmed
+            }
+          );
         }}
       />
     </div>
