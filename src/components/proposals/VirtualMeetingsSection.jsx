@@ -5,13 +5,15 @@
  */
 
 import { useState } from 'react';
+import { handleCancelVirtualMeetingRequest } from '../../lib/workflows/virtualMeetings.js';
 import RespondVirtualMeetingModal from './RespondVirtualMeetingModal.jsx';
 import '../../styles/virtual-meetings.css';
 
-export default function VirtualMeetingsSection({ proposal }) {
+export default function VirtualMeetingsSection({ proposal, onUpdate }) {
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [showRespondModal, setShowRespondModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // Get virtual meeting from proposal (single meeting, not array)
   const virtualMeeting = proposal?.virtualMeeting;
@@ -191,12 +193,28 @@ export default function VirtualMeetingsSection({ proposal }) {
                 <button className="btn-vm-cancel-no" onClick={() => setShowCancelModal(false)}>
                   No
                 </button>
-                <button className="btn-vm-cancel-confirm" onClick={() => {
-                  // TODO: Implement cancel workflow
-                  alert('Cancel meeting workflow not yet implemented');
-                  setShowCancelModal(false);
-                }}>
-                  Cancel Meeting
+                <button
+                  className="btn-vm-cancel-confirm"
+                  onClick={() => {
+                    setIsCancelling(true);
+                    handleCancelVirtualMeetingRequest(
+                      virtualMeeting.id,
+                      (result) => {
+                        console.log('✅ Virtual meeting cancelled:', result.message);
+                        setShowCancelModal(false);
+                        setIsCancelling(false);
+                        if (onUpdate) onUpdate(); // Refresh proposal data
+                      },
+                      (err) => {
+                        console.error('❌ Cancel error:', err);
+                        alert(`Failed to cancel meeting: ${err}`);
+                        setIsCancelling(false);
+                      }
+                    );
+                  }}
+                  disabled={isCancelling}
+                >
+                  {isCancelling ? 'Cancelling...' : 'Cancel Meeting'}
                 </button>
               </div>
             </div>

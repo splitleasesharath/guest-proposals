@@ -401,6 +401,7 @@ export async function handleDeclineVirtualMeeting(vmId, onSuccess, onError) {
 
 /**
  * UI handler for cancelling guest's own VM request
+ * Called from VirtualMeetingsSection cancel modal
  *
  * @param {string} vmId - Virtual meeting ID
  * @param {Function} onSuccess - Callback on success
@@ -408,14 +409,6 @@ export async function handleDeclineVirtualMeeting(vmId, onSuccess, onError) {
  */
 export async function handleCancelVirtualMeetingRequest(vmId, onSuccess, onError) {
   try {
-    const confirmed = window.confirm(
-      'Are you sure you want to cancel your virtual meeting request?'
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     await cancelVirtualMeetingRequest(vmId);
 
     if (onSuccess) {

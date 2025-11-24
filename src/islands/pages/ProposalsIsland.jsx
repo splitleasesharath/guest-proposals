@@ -118,7 +118,10 @@ export default function ProposalsIsland() {
 
       {/* Virtual Meetings Section */}
       {selectedProposal && (
-        <VirtualMeetingsSection proposal={selectedProposal} />
+        <VirtualMeetingsSection
+          proposal={selectedProposal}
+          onUpdate={loadProposals}
+        />
       )}
 
       {/* Floating Proposal Summary - Desktop only */}
