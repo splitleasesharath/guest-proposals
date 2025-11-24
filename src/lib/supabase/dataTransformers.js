@@ -58,7 +58,7 @@ export function transformListingData(rawListing) {
     zipCode: rawListing['Location - Zip Code'],
     photos: rawListing['Features - Photos'],
     featuredPhotoUrl: rawListing.featuredPhotoUrl, // Featured photo from listing_photo table
-    houseRules: rawListing['Features - House Rules'],
+    houseRules: rawListing.houseRules || [], // Use resolved house rules from query layer, not raw IDs
     checkInTime: rawListing['NEW Date Check-in Time'],
     checkOutTime: rawListing['NEW Date Check-out Time']
   };
