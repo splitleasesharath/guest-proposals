@@ -297,6 +297,30 @@ export default function RequestVirtualMeetingModal({ isOpen, onClose, proposal }
                   );
                 })}
               </div>
+
+              {/* Selected Slots Display */}
+              {selectedTimeSlots.length > 0 && (
+                <div className="rvm-selected-slots">
+                  {selectedTimeSlots.map((timeSlot, index) => {
+                    const formattedDate = selectedDate.toLocaleDateString('en-US', {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    });
+                    return (
+                      <div key={index} className="rvm-selected-slot-item">
+                        <svg className="rvm-slot-clock-icon" viewBox="0 0 24 24" width="20" height="20">
+                          <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M16.2,16.2L11,13V7H12.5V12.2L17,14.7L16.2,16.2Z" />
+                        </svg>
+                        <span className="rvm-slot-text">
+                          {timeSlot} (EST) &nbsp;{formattedDate}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
