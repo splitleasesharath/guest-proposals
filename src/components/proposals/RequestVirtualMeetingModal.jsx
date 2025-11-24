@@ -21,7 +21,8 @@ export default function RequestVirtualMeetingModal({ isOpen, onClose, proposal }
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
+  // Changed to array of objects: { date, timeSlot }
+  const [selectedSlots, setSelectedSlots] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function RequestVirtualMeetingModal({ isOpen, onClose, proposal }
       setCurrentMonth(now.getMonth());
       setCurrentYear(now.getFullYear());
       setSelectedDate(null);
-      setSelectedTimeSlots([]);
+      setSelectedSlots([]);
       setIsSubmitting(false);
     }
   }, [isOpen]);
@@ -131,27 +132,51 @@ export default function RequestVirtualMeetingModal({ isOpen, onClose, proposal }
   function handleDateClick(dayInfo) {
     if (!dayInfo.isCurrentMonth || isPastDate(dayInfo.date)) return;
     setSelectedDate(dayInfo.date);
-    setSelectedTimeSlots([]); // Clear time slots when date changes
+    // Don't clear time slots - keep selections from other dates
   }
 
   function handleTimeSlotClick(timeSlot) {
     if (!selectedDate) return;
 
-    if (selectedTimeSlots.includes(timeSlot)) {
-      // Deselect
-      setSelectedTimeSlots(selectedTimeSlots.filter(slot => slot !== timeSlot));
-    } else if (selectedTimeSlots.length < 3) {
-      // Select (max 3)
-      setSelectedTimeSlots([...selectedTimeSlots, timeSlot]);
+    // Create a date string for comparison (YYYY-MM-DD)
+    const dateKey = selectedDate.toISOString().split('T')[0];
+
+    // Check if this exact date-time combination exists
+    const existingIndex = selectedSlots.findIndex(
+      slot => slot.dateKey === dateKey && slot.timeSlot === timeSlot
+    );
+
+    if (existingIndex !== -1) {
+      // Deselect this specific date-time combination
+      setSelectedSlots(selectedSlots.filter((_, index) => index !== existingIndex));
+    } else if (selectedSlots.length < 3) {
+      // Select (max 3 total across all dates)
+      setSelectedSlots([
+        ...selectedSlots,
+        {
+          date: new Date(selectedDate),
+          dateKey,
+          timeSlot
+        }
+      ]);
     }
   }
 
   function handleClearTimeSlots() {
-    setSelectedTimeSlots([]);
+    setSelectedSlots([]);
+  }
+
+  // Helper to check if a time slot is selected for the current date
+  function isTimeSlotSelectedForCurrentDate(timeSlot) {
+    if (!selectedDate) return false;
+    const dateKey = selectedDate.toISOString().split('T')[0];
+    return selectedSlots.some(
+      slot => slot.dateKey === dateKey && slot.timeSlot === timeSlot
+    );
   }
 
   async function handleSubmit() {
-    if (isSubmitting || selectedTimeSlots.length < 3) return;
+    if (isSubmitting || selectedSlots.length < 3) return;
 
     setIsSubmitting(true);
 
@@ -159,8 +184,10 @@ export default function RequestVirtualMeetingModal({ isOpen, onClose, proposal }
       // TODO: Implement API call to create virtual meeting request
       console.log('Submitting virtual meeting request:', {
         proposalId: proposal.id,
-        date: selectedDate,
-        timeSlots: selectedTimeSlots
+        slots: selectedSlots.map(slot => ({
+          date: slot.date,
+          timeSlot: slot.timeSlot
+        }))
       });
 
       // Simulate API call
@@ -177,8 +204,8 @@ export default function RequestVirtualMeetingModal({ isOpen, onClose, proposal }
   }
 
   const days = getDaysInMonth();
-  const remainingSlots = 3 - selectedTimeSlots.length;
-  const canSubmit = selectedTimeSlots.length === 3;
+  const remainingSlots = 3 - selectedSlots.length;
+  const canSubmit = selectedSlots.length === 3;
 
   return (
     <div className="rvm-modal-overlay" onClick={onClose}>
@@ -273,54 +300,58 @@ export default function RequestVirtualMeetingModal({ isOpen, onClose, proposal }
             <div className="rvm-time-slots-container">
               <div className="rvm-time-slots-header">
                 <h3 className="rvm-time-slots-title">Select 3 Time Slots (EST)</h3>
-                {selectedTimeSlots.length > 0 && (
+                {selectedSlots.length > 0 && (
                   <button
                     className="rvm-clear-btn"
                     onClick={handleClearTimeSlots}
                   >
-                    Clear Time Slots
+                    Clear All Time Slots
                   </button>
                 )}
               </div>
 
               <div className="rvm-time-slots-grid">
                 {TIME_SLOTS.map((timeSlot) => {
-                  const isSelected = selectedTimeSlots.includes(timeSlot);
+                  const isSelected = isTimeSlotSelectedForCurrentDate(timeSlot);
                   return (
                     <button
                       key={timeSlot}
                       className={`rvm-time-slot ${isSelected ? 'rvm-time-slot-selected' : ''}`}
                       onClick={() => handleTimeSlotClick(timeSlot)}
+                      disabled={!isSelected && selectedSlots.length >= 3}
                     >
                       {timeSlot}
                     </button>
                   );
                 })}
               </div>
+            </div>
+          )}
 
-              {/* Selected Slots Display */}
-              {selectedTimeSlots.length > 0 && (
-                <div className="rvm-selected-slots">
-                  {selectedTimeSlots.map((timeSlot, index) => {
-                    const formattedDate = selectedDate.toLocaleDateString('en-US', {
-                      weekday: 'short',
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    });
-                    return (
-                      <div key={index} className="rvm-selected-slot-item">
-                        <svg className="rvm-slot-clock-icon" viewBox="0 0 24 24" width="20" height="20">
-                          <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M16.2,16.2L11,13V7H12.5V12.2L17,14.7L16.2,16.2Z" />
-                        </svg>
-                        <span className="rvm-slot-text">
-                          {timeSlot} (EST) &nbsp;{formattedDate}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+          {/* Selected Slots Display - Show all selections across all dates */}
+          {selectedSlots.length > 0 && (
+            <div className="rvm-selected-slots">
+              <div className="rvm-selected-slots-header">
+                <h4 className="rvm-selected-slots-title">Your Selected Time Slots ({selectedSlots.length}/3)</h4>
+              </div>
+              {selectedSlots.map((slot, index) => {
+                const formattedDate = slot.date.toLocaleDateString('en-US', {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                });
+                return (
+                  <div key={index} className="rvm-selected-slot-item">
+                    <svg className="rvm-slot-clock-icon" viewBox="0 0 24 24" width="20" height="20">
+                      <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M16.2,16.2L11,13V7H12.5V12.2L17,14.7L16.2,16.2Z" />
+                    </svg>
+                    <span className="rvm-slot-text">
+                      {slot.timeSlot} (EST) &nbsp;{formattedDate}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           )}
 
