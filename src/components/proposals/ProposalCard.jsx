@@ -22,6 +22,7 @@ import HostProfileModal from './HostProfileModal.jsx';
 import CompareTermsModal from './CompareTermsModal.jsx';
 import CounterOfferBanner from './CounterOfferBanner.jsx';
 import RespondVirtualMeetingModal from './RespondVirtualMeetingModal.jsx';
+import RequestVirtualMeetingModal from './RequestVirtualMeetingModal.jsx';
 
 // Helper to render weekly schedule with circular badges
 function WeeklySchedule({ daysSelected }) {
@@ -66,6 +67,7 @@ function ProgressTracker({ currentStage }) {
 export default function ProposalCard({ proposal, currentUserId, onUpdate }) {
   const [showMapsModal, setShowMapsModal] = useState(false);
   const [showHostProfileModal, setShowHostProfileModal] = useState(false);
+  const [showRequestMeetingModal, setShowRequestMeetingModal] = useState(false);
   const [showRespondMeetingModal, setShowRespondMeetingModal] = useState(false);
   const [showCompareTermsModal, setShowCompareTermsModal] = useState(false);
   const [showHouseRules, setShowHouseRules] = useState(false);
@@ -234,6 +236,13 @@ export default function ProposalCard({ proposal, currentUserId, onUpdate }) {
                 <button
                   className={`btn-request-meeting btn-${vmState.buttonStyle || 'primary'}`}
                   onClick={() => {
+                    // State 1: No VM - Open request modal
+                    if (!proposal.virtualMeeting) {
+                      setShowRequestMeetingModal(true);
+                      return;
+                    }
+
+                    // All other states - use workflow handler
                     handleRequestVirtualMeeting(
                       proposal,
                       currentUserId,
@@ -362,6 +371,11 @@ export default function ProposalCard({ proposal, currentUserId, onUpdate }) {
         isOpen={showHostProfileModal}
         onClose={() => setShowHostProfileModal(false)}
         host={host}
+      />
+      <RequestVirtualMeetingModal
+        isOpen={showRequestMeetingModal}
+        onClose={() => setShowRequestMeetingModal(false)}
+        proposal={proposal}
       />
       <CompareTermsModal
         isOpen={showCompareTermsModal}
