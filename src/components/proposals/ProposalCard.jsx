@@ -24,6 +24,7 @@ import CounterOfferBanner from './CounterOfferBanner.jsx';
 import RespondVirtualMeetingModal from './RespondVirtualMeetingModal.jsx';
 import RequestVirtualMeetingModal from './RequestVirtualMeetingModal.jsx';
 import CancelProposalModal from './CancelProposalModal.jsx';
+import ModifyProposalModal from './ModifyProposalModal.jsx';
 
 // Helper to render weekly schedule with circular badges
 function WeeklySchedule({ daysSelected }) {
@@ -72,6 +73,7 @@ export default function ProposalCard({ proposal, currentUserId, onUpdate }) {
   const [showRespondMeetingModal, setShowRespondMeetingModal] = useState(false);
   const [showCompareTermsModal, setShowCompareTermsModal] = useState(false);
   const [showCancelProposalModal, setShowCancelProposalModal] = useState(false);
+  const [showModifyProposalModal, setShowModifyProposalModal] = useState(false);
   const [showHouseRules, setShowHouseRules] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -259,6 +261,16 @@ export default function ProposalCard({ proposal, currentUserId, onUpdate }) {
                   disabled={isVMButtonDisabled(virtualMeeting, currentUserId)}
                 >
                   {vmState.buttonText}
+                </button>
+              )}
+
+              {/* Modify Proposal Button (Guest Action 2) */}
+              {proposal.status === 'Proposal Submitted by guest - Awaiting Rental Application' && (
+                <button
+                  className="btn-modify-proposal"
+                  onClick={() => setShowModifyProposalModal(true)}
+                >
+                  Modify Proposal
                 </button>
               )}
 
@@ -457,6 +469,17 @@ export default function ProposalCard({ proposal, currentUserId, onUpdate }) {
               skipConfirmation: true // Skip window.confirm since modal already confirmed
             }
           );
+        }}
+      />
+      <ModifyProposalModal
+        isOpen={showModifyProposalModal}
+        onClose={() => setShowModifyProposalModal(false)}
+        proposal={proposal}
+        onSave={(editedProposal) => {
+          // TODO: Implement save logic - update proposal with edited values
+          console.log('Saving edited proposal:', editedProposal);
+          setSuccessMessage('Proposal modified successfully!');
+          if (onUpdate) onUpdate();
         }}
       />
     </div>

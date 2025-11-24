@@ -1324,3 +1324,230 @@
     width: 100%;
   }
 }
+
+/* Modify Proposal Modal */
+.modal-modify-proposal {
+  width: 55%;
+  max-width: 600px;
+  min-height: 0;
+  max-height: 90vh;
+}
+
+.modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal-back-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #F3F4F6;
+  color: #6B7280;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.modal-back-btn:hover {
+  background: #E5E7EB;
+  color: #111827;
+}
+
+.modal-title-icon {
+  font-size: 18px;
+  margin-right: 0.5rem;
+}
+
+.form-section {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.info-icon {
+  margin-left: 0.5rem;
+  cursor: help;
+  color: #6B7280;
+  font-size: 14px;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 0.75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #111827;
+  background: #F9FAFB;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #6366F1;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-helper-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #6B7280;
+  margin-top: 0.5rem;
+}
+
+.days-selector-visual {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 1rem;
+  background: #F0EBFF;
+  border-radius: 12px;
+  border: 1px solid #E5D5FF;
+}
+
+.btn-calendar-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #D1D5DB;
+  background: #FFFFFF;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-calendar-icon:hover {
+  background: #F3F4F6;
+  border-color: #6366F1;
+}
+
+.day-selector-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #D1D5DB;
+  background: #FFFFFF;
+  color: #6B7280;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.day-selector-btn:hover {
+  background: #F3F4F6;
+  border-color: #9CA3AF;
+}
+
+.day-selector-btn.selected {
+  background: #6B4EFF;
+  color: #FFFFFF;
+  border-color: #6B4EFF;
+}
+
+.days-summary {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0.75rem 0 0.5rem 0;
+  text-align: center;
+}
+
+.check-days-summary {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #6B7280;
+  line-height: 1.6;
+  margin: 0.5rem 0 0 0;
+  text-align: center;
+}
+
+.check-days-summary strong {
+  color: #111827;
+  font-weight: 600;
+}
+
+.total-section {
+  padding: 1.5rem;
+  background: #F0EBFF;
+  border: 2px solid #6B4EFF;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.total-reservation {
+  font-family: 'Lato', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #6B4EFF;
+  margin: 0;
+}
+
+.calendar-section {
+  padding: 1rem 0;
+}
+
+.modal-confirm-cancel {
+  width: 450px;
+  max-width: 90vw;
+}
+
+.btn-modify-proposal {
+  padding: 0.75rem 1.5rem;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  background: #6B4EFF;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(107, 78, 255, 0.3);
+}
+
+.btn-modify-proposal:hover {
+  background: #5A3EE5;
+  box-shadow: 0 4px 8px rgba(107, 78, 255, 0.4);
+}
+
+@media (max-width: 768px) {
+  .modal-modify-proposal {
+    width: 90vw;
+  }
+
+  .days-selector-visual {
+    flex-wrap: wrap;
+  }
+
+  .day-selector-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+}
