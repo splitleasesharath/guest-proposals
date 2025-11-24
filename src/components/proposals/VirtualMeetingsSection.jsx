@@ -11,9 +11,35 @@ import '../../styles/virtual-meetings.css';
 export default function VirtualMeetingsSection({ proposal }) {
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [showRespondModal, setShowRespondModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
-  // Get virtual meetings from proposal
-  const virtualMeetings = proposal?.virtualMeetings || [];
+  // Get virtual meeting from proposal (single meeting, not array)
+  const virtualMeeting = proposal?.virtualMeeting;
+
+  // Format suggested timeslots from JSONB array
+  function formatTimeslots(timeslotsArray) {
+    if (!timeslotsArray || !Array.isArray(timeslotsArray)) return [];
+
+    return timeslotsArray.map(isoString => {
+      try {
+        const date = new Date(isoString);
+        return {
+          formatted: date.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          }),
+          iso: isoString
+        };
+      } catch (err) {
+        console.error('Error formatting timeslot:', err);
+        return null;
+      }
+    }).filter(Boolean);
+  }
 
   function handleRespondClick(meeting) {
     setSelectedMeeting(meeting);
@@ -66,96 +92,68 @@ export default function VirtualMeetingsSection({ proposal }) {
     }
   }
 
+  // Don't show section if no virtual meeting exists
+  if (!virtualMeeting) {
+    return null;
+  }
+
+  const timeslots = formatTimeslots(virtualMeeting.suggestedTimeslots);
+  const hostName = proposal.host?.firstName || 'Host';
+
   return (
     <div className="virtual-meetings-section">
       <div className="vm-section-header">
         <h2 className="vm-section-title">Virtual Meetings</h2>
-        <p className="vm-section-subtitle">
-          Schedule and manage virtual meetings with your host
-        </p>
       </div>
 
-      {virtualMeetings.length > 0 && (
-        <div className="vm-cards-container">
-          {virtualMeetings.map((meeting) => (
-          <div key={meeting.id} className="vm-card">
-            {/* Host Info */}
-            <div className="vm-card-host">
-              {proposal.host?.profilePhoto && (
-                <img
-                  src={proposal.host.profilePhoto}
-                  alt={proposal.host.firstName || 'Host'}
-                  className="vm-host-avatar"
-                />
-              )}
-              <div className="vm-host-info">
-                <p className="vm-host-name">
-                  Meeting with {proposal.host?.firstName || 'Host'}
-                </p>
-                <p className="vm-meeting-id">Meeting ID: {meeting.uniqueId || meeting.id}</p>
-              </div>
-            </div>
-
-            {/* Meeting Details */}
-            <div className="vm-card-details">
-              <div className="vm-detail-row">
-                <span className="vm-detail-label">Date & Time:</span>
-                <span className="vm-detail-value">
-                  {formatMeetingDateTime(meeting.bookedDate || meeting.scheduledDate)}
-                </span>
-              </div>
-
-              {meeting.platform && (
-                <div className="vm-detail-row">
-                  <span className="vm-detail-label">Platform:</span>
-                  <span className="vm-detail-value">{meeting.platform}</span>
-                </div>
-              )}
-
-              {meeting.meetingLink && meeting.status === 'confirmed' && (
-                <div className="vm-detail-row">
-                  <span className="vm-detail-label">Link:</span>
-                  <a
-                    href={meeting.meetingLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="vm-meeting-link"
-                  >
-                    Join Meeting
-                  </a>
-                </div>
-              )}
-
-              {/* Status Badge */}
-              <div className="vm-status-container">
-                <span className={`vm-status-badge ${getStatusBadgeClass(meeting.status)}`}>
-                  {getStatusLabel(meeting.status)}
-                </span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="vm-card-actions">
-              {meeting.status !== 'confirmed' && meeting.status !== 'cancelled' && (
-                <button
-                  className="btn-vm-respond"
-                  onClick={() => handleRespondClick(meeting)}
-                >
-                  Respond to Virtual Meeting
-                </button>
-              )}
-              {meeting.status === 'confirmed' && (
-                <button className="btn-vm-reschedule" disabled>
-                  Reschedule (Coming Soon)
-                </button>
-              )}
-            </div>
+      <div className="vm-card">
+        {/* Host Info & Property Name */}
+        <div className="vm-card-host">
+          {proposal.host?.profilePhoto && (
+            <img
+              src={proposal.host.profilePhoto}
+              alt={hostName}
+              className="vm-host-avatar"
+            />
+          )}
+          <div className="vm-host-info">
+            <p className="vm-host-name">
+              {hostName} - {proposal.listing?.name}
+            </p>
           </div>
-        ))}
         </div>
-      )}
 
-      {/* Respond Modal */}
+        {/* Meeting Status Message */}
+        <div className="vm-meeting-status">
+          <svg className="vm-calendar-icon" viewBox="0 0 24 24" width="20" height="20">
+            <path fill="currentColor" d="M19,4H18V2H16V4H8V2H6V4H5C3.89,4 3,4.9 3,6V20A2,2 0 0,0 5,22H19A2,2 0 0,0 21,20V6A2,2 0 0,0 19,4M19,20H5V10H19V20M5,8V6H19V8H5Z" />
+          </svg>
+          <span className="vm-status-text">
+            A virtual meeting with {hostName} has been suggested for the times:
+          </span>
+        </div>
+
+        {/* Time Slots Pills */}
+        <div className="vm-timeslots">
+          {timeslots.map((slot, index) => (
+            <div key={index} className="vm-timeslot-pill">
+              {slot.formatted}
+            </div>
+          ))}
+        </div>
+
+        {/* Cancel Button */}
+        <div className="vm-card-actions">
+          <button
+            className="btn-vm-cancel"
+            onClick={() => setShowCancelModal(true)}
+          >
+            Cancel Virtual Meeting
+          </button>
+        </div>
+      </div>
+
+      {/* Respond Modal (if needed for other states) */}
       {selectedMeeting && (
         <RespondVirtualMeetingModal
           isOpen={showRespondModal}
@@ -163,6 +161,47 @@ export default function VirtualMeetingsSection({ proposal }) {
           meeting={selectedMeeting}
           proposal={proposal}
         />
+      )}
+
+      {/* Cancel Confirmation Modal - TODO: Create this component */}
+      {showCancelModal && (
+        <div className="vm-cancel-modal-overlay" onClick={() => setShowCancelModal(false)}>
+          <div className="vm-cancel-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="vm-cancel-modal-close" onClick={() => setShowCancelModal(false)}>
+              ✕
+            </button>
+            <div className="vm-cancel-modal-content">
+              <div className="vm-cancel-header">
+                <svg className="vm-cancel-icon" viewBox="0 0 24 24" width="24" height="24">
+                  <path fill="currentColor" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+                </svg>
+                <h3>Cancel Virtual Meeting?</h3>
+              </div>
+              <p className="vm-cancel-warning">This action cannot be undone</p>
+              <div className="vm-cancel-details">
+                <svg className="vm-calendar-icon" viewBox="0 0 24 24" width="24" height="24">
+                  <path fill="currentColor" d="M19,4H18V2H16V4H8V2H6V4H5C3.89,4 3,4.9 3,6V20A2,2 0 0,0 5,22H19A2,2 0 0,0 21,20V6A2,2 0 0,0 19,4M19,20H5V10H19V20M5,8V6H19V8H5Z" />
+                </svg>
+                <div>
+                  <p className="vm-cancel-meeting-name">Meeting with {hostName}</p>
+                  <p className="vm-cancel-property-name">{proposal.listing?.name}</p>
+                </div>
+              </div>
+              <div className="vm-cancel-actions">
+                <button className="btn-vm-cancel-no" onClick={() => setShowCancelModal(false)}>
+                  No
+                </button>
+                <button className="btn-vm-cancel-confirm" onClick={() => {
+                  // TODO: Implement cancel workflow
+                  alert('Cancel meeting workflow not yet implemented');
+                  setShowCancelModal(false);
+                }}>
+                  Cancel Meeting
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

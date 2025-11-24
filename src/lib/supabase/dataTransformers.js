@@ -118,11 +118,16 @@ export function transformVirtualMeetingData(rawVirtualMeeting) {
   if (!rawVirtualMeeting) return null;
 
   return {
-    id: rawVirtualMeeting.id,
-    bookedDate: rawVirtualMeeting.booked_date,
-    confirmedBySplitlease: rawVirtualMeeting.confirmed_by_splitlease,
-    meetingLink: rawVirtualMeeting.meeting_link,
-    meetingDeclined: rawVirtualMeeting.meeting_declined
+    id: rawVirtualMeeting._id,
+    bookedDate: rawVirtualMeeting['booked date'],
+    confirmedBySplitlease: rawVirtualMeeting.confirmedBySplitLease,
+    meetingLink: rawVirtualMeeting['meeting link'],
+    meetingDeclined: rawVirtualMeeting['meeting declined'],
+    requestedBy: rawVirtualMeeting['requested by'],
+    suggestedTimeslots: rawVirtualMeeting['suggested dates and times'], // JSONB array of ISO datetimes
+    guestName: rawVirtualMeeting['guest name'],
+    hostName: rawVirtualMeeting['host name'],
+    proposalId: rawVirtualMeeting.proposal
   };
 }
 
