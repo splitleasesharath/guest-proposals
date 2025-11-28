@@ -22,6 +22,8 @@ import FloatingProposalSummary from '../../components/proposals/FloatingProposal
 import LoadingState from '../../components/proposals/LoadingState.jsx';
 import ErrorState from '../../components/proposals/ErrorState.jsx';
 import EmptyState from '../../components/proposals/EmptyState.jsx';
+import ModifyProposalModal from '../../components/proposals/ModifyProposalModal.jsx';
+import CompareTermsModal from '../../components/proposals/CompareTermsModal.jsx';
 
 export default function ProposalsIsland() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -29,6 +31,10 @@ export default function ProposalsIsland() {
   const [selectedProposal, setSelectedProposal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Modal states
+  const [showModifyModal, setShowModifyModal] = useState(false);
+  const [showCompareTermsModal, setShowCompareTermsModal] = useState(false);
 
   // Load data on mount
   useEffect(() => {
@@ -103,8 +109,8 @@ export default function ProposalsIsland() {
       {/* 10 Always-Visible Buttons */}
       <div className="buttons-container">
         <div className="button-row">
-          <button className="btn-numbered">Button1</button>
-          <button className="btn-numbered">Button2</button>
+          <button className="btn-numbered" onClick={() => setShowModifyModal(true)}>Button1</button>
+          <button className="btn-numbered" onClick={() => setShowCompareTermsModal(true)}>Button2</button>
           <button className="btn-numbered">Button3</button>
           <button className="btn-numbered">Button4</button>
           <button className="btn-numbered">Button5</button>
@@ -115,6 +121,31 @@ export default function ProposalsIsland() {
           <button className="btn-numbered">Button10</button>
         </div>
       </div>
+
+      {/* Modals */}
+      <ModifyProposalModal
+        isOpen={showModifyModal}
+        onClose={() => setShowModifyModal(false)}
+        proposal={selectedProposal}
+        onSave={(editedProposal) => {
+          console.log('Saved proposal edits:', editedProposal);
+          loadProposals();
+        }}
+      />
+
+      <CompareTermsModal
+        isOpen={showCompareTermsModal}
+        onClose={() => setShowCompareTermsModal(false)}
+        proposal={selectedProposal}
+        onAccept={(proposal) => {
+          console.log('Accepted counteroffer:', proposal);
+          loadProposals();
+        }}
+        onDecline={(proposal) => {
+          console.log('Declined counteroffer:', proposal);
+          loadProposals();
+        }}
+      />
 
       {/* Proposal Selector Dropdown */}
       <ProposalSelector
