@@ -100,6 +100,20 @@ export default function ProposalsIsland() {
   // Main view
   return (
     <div className="proposals-page">
+      {/* 10 Always-Visible Buttons */}
+      <div className="button-row" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
+        <button className="btn-numbered">Button1</button>
+        <button className="btn-numbered">Button2</button>
+        <button className="btn-numbered">Button3</button>
+        <button className="btn-numbered">Button4</button>
+        <button className="btn-numbered">Button5</button>
+        <button className="btn-numbered">Button6</button>
+        <button className="btn-numbered">Button7</button>
+        <button className="btn-numbered">Button8</button>
+        <button className="btn-numbered">Button9</button>
+        <button className="btn-numbered">Button10</button>
+      </div>
+
       {/* Proposal Selector Dropdown */}
       <ProposalSelector
         proposals={proposals}
