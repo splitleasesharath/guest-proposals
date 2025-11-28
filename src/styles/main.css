@@ -901,17 +901,24 @@ main {
     color: #9CA3AF;
 }
 
-/* Numbered Buttons Row */
+/* Buttons Container */
+.buttons-container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .button-row {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 16px;
 }
 
 .btn-numbered {
     padding: 8px 16px;
-    background-color: var(--primary-purple);
+    background-color: #31135D;
     color: white;
     border: none;
     border-radius: 8px;
@@ -922,7 +929,7 @@ main {
 }
 
 .btn-numbered:hover {
-    background-color: var(--primary-hover);
+    background-color: #4a1f8a;
     transform: translateY(-1px);
 }
 
