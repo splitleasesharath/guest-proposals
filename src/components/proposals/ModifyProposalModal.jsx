@@ -37,11 +37,36 @@ export default function ModifyProposalModal({ isOpen, onClose, proposal, onSave,
     }
   }, [isOpen, proposal, initialView]);
 
-  // Handle ESC key
+  // Check if any changes were made compared to original proposal
+  const hasChanges = () => {
+    if (!proposal) return false;
+
+    const originalDaysSelected = proposal.daysSelected || [];
+    const currentDaysSelected = editedProposal.daysSelected || [];
+
+    // Compare arrays by sorting and joining
+    const daysChanged =
+      originalDaysSelected.slice().sort().join(',') !==
+      currentDaysSelected.slice().sort().join(',');
+
+    return (
+      editedProposal.moveInDate !== (proposal.moveInStart || '') ||
+      editedProposal.checkInDay !== (proposal.checkInDay || '') ||
+      editedProposal.checkOutDay !== (proposal.checkOutDay || '') ||
+      editedProposal.reservationWeeks !== (proposal.reservationWeeks || 0) ||
+      daysChanged
+    );
+  };
+
+  // Handle ESC key - check for changes before showing confirmation
   useEffect(() => {
     function handleKeyDown(e) {
       if (e.key === 'Escape' && !showCancelConfirmation) {
-        setShowCancelConfirmation(true);
+        if (hasChanges()) {
+          setShowCancelConfirmation(true);
+        } else {
+          onClose();
+        }
       }
     }
 
@@ -52,7 +77,7 @@ export default function ModifyProposalModal({ isOpen, onClose, proposal, onSave,
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, showCancelConfirmation]);
+  }, [isOpen, showCancelConfirmation, editedProposal, proposal, onClose]);
 
   if (!isOpen || !proposal) return null;
 
@@ -98,7 +123,12 @@ export default function ModifyProposalModal({ isOpen, onClose, proposal, onSave,
   };
 
   const handleCancel = () => {
-    setShowCancelConfirmation(true);
+    // Only show confirmation if changes were made
+    if (hasChanges()) {
+      setShowCancelConfirmation(true);
+    } else {
+      onClose();
+    }
   };
 
   const handleConfirmCancel = () => {
