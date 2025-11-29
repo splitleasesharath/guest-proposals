@@ -33,7 +33,8 @@ export default function ProposalsIsland() {
   const [error, setError] = useState(null);
 
   // Modal states
-  const [showModifyModal, setShowModifyModal] = useState(false);
+  const [showModifyModalEditing, setShowModifyModalEditing] = useState(false);
+  const [showModifyModalGeneral, setShowModifyModalGeneral] = useState(false);
   const [showCompareTermsModal, setShowCompareTermsModal] = useState(false);
 
   // Load data on mount
@@ -109,8 +110,8 @@ export default function ProposalsIsland() {
       {/* 10 Always-Visible Buttons */}
       <div className="buttons-container">
         <div className="button-row">
-          <button className="btn-numbered" onClick={() => setShowModifyModal(true)}>Button1</button>
-          <button className="btn-numbered" onClick={() => setShowCompareTermsModal(true)}>Button2</button>
+          <button className="btn-numbered" onClick={() => setShowModifyModalEditing(true)}>gep: editing</button>
+          <button className="btn-numbered" onClick={() => setShowModifyModalGeneral(true)}>gep: general</button>
           <button className="btn-numbered">Button3</button>
           <button className="btn-numbered">Button4</button>
           <button className="btn-numbered">Button5</button>
@@ -124,11 +125,23 @@ export default function ProposalsIsland() {
 
       {/* Modals */}
       <ModifyProposalModal
-        isOpen={showModifyModal}
-        onClose={() => setShowModifyModal(false)}
+        isOpen={showModifyModalEditing}
+        onClose={() => setShowModifyModalEditing(false)}
         proposal={selectedProposal}
+        initialView="editing"
         onSave={(editedProposal) => {
-          console.log('Saved proposal edits:', editedProposal);
+          console.log('Saved proposal edits (editing view):', editedProposal);
+          loadProposals();
+        }}
+      />
+
+      <ModifyProposalModal
+        isOpen={showModifyModalGeneral}
+        onClose={() => setShowModifyModalGeneral(false)}
+        proposal={selectedProposal}
+        initialView="general"
+        onSave={(editedProposal) => {
+          console.log('Saved proposal edits (general view):', editedProposal);
           loadProposals();
         }}
       />

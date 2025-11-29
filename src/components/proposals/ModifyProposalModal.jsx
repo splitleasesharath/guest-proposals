@@ -9,8 +9,8 @@ import { formatPrice } from '../../lib/supabase/dataTransformers.js';
 import CalendarWidget from './CalendarWidget.jsx';
 import '../../styles/modals.css';
 
-export default function ModifyProposalModal({ isOpen, onClose, proposal, onSave }) {
-  const [showCalendar, setShowCalendar] = useState(false);
+export default function ModifyProposalModal({ isOpen, onClose, proposal, onSave, initialView = 'general' }) {
+  const [showCalendar, setShowCalendar] = useState(initialView === 'editing');
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
   const [editedProposal, setEditedProposal] = useState({
     moveInDate: '',
@@ -32,8 +32,10 @@ export default function ModifyProposalModal({ isOpen, onClose, proposal, onSave 
         nightsPerWeek: proposal.nightsPerWeek || 0,
         daysSelected: proposal.daysSelected || []
       });
+      // Reset view based on initialView prop
+      setShowCalendar(initialView === 'editing');
     }
-  }, [isOpen, proposal]);
+  }, [isOpen, proposal, initialView]);
 
   // Handle ESC key
   useEffect(() => {
